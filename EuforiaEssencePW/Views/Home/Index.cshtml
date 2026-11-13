@@ -1,0 +1,29 @@
+﻿@model EuforiaEssencePW.Models.ViewModels.InicioViewModel
+
+@{
+    ViewData["Title"] = "Inicio";
+}
+
+<section class="ee-inicio-anuncio">
+    <div class="ee-anuncio-contenido">
+        <span class="ee-anuncio-marca">
+            Euphoria Essence
+        </span>
+
+        <h1>
+            @(Model.Campania?.Titulo ?? "Perfumes para el verano")
+        </h1>
+
+        <span class="ee-anuncio-linea" aria-hidden="true"></span>
+
+        <p class="ee-anuncio-subtitulo">
+            Selección de temporada
+        </p>
+
+        <a asp-controller="Catalogo"
+           asp-action="Index"
+           class="btn ee-anuncio-boton">
+            Ver perfumes
+        </a>
+    </div>
+</section>

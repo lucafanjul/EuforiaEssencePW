@@ -1,0 +1,60 @@
+﻿@model EuforiaEssencePW.Models.Perfume
+
+@{
+    ViewData["Title"] = "Eliminar perfume";
+}
+
+<h1>Eliminar perfume</h1>
+
+<div class="card card-body my-3">
+    <div class="d-flex align-items-center flex-wrap gap-3">
+        @if (!string.IsNullOrWhiteSpace(Model.ImagenUrl))
+        {
+            <img src="@Url.Content(Model.ImagenUrl)"
+                 alt="@Model.Nombre"
+                 class="rounded"
+                 style="width: 100px; height: 130px; object-fit: contain;" />
+        }
+
+        <div>
+            <h2 class="h5">@Model.Nombre</h2>
+            <p class="mb-1">
+                <strong>Marca:</strong> @Model.Marca?.Nombre
+            </p>
+            <p class="mb-1">
+                <strong>Categoría:</strong> @Model.Categoria?.Nombre
+            </p>
+            <p class="mb-0">
+                <strong>Estado:</strong>
+                @(Model.Activo ? "Activo" : "Inactivo")
+            </p>
+        </div>
+    </div>
+</div>
+
+<p class="text-muted">
+    Solo se puede eliminar un perfume sin presentaciones asociadas.
+    Para retirarlo del catálogo, también podés desactivarlo desde Editar.
+</p>
+
+<form asp-controller="Perfumes"
+      asp-action="Delete"
+      asp-route-id="@Model.Id"
+      method="post"
+      data-confirmar
+      data-titulo="¿Eliminar este perfume?"
+      data-mensaje="Esta operación no se puede deshacer."
+      data-boton="Eliminar perfume">
+
+    <input type="hidden" asp-for="Id" />
+
+    <div class="d-flex flex-wrap gap-2">
+        <button type="submit" class="btn btn-danger">
+            Eliminar perfume
+        </button>
+
+        <a asp-action="Index" class="btn btn-secondary">
+            Volver
+        </a>
+    </div>
+</form>

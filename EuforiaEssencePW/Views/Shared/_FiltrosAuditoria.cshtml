@@ -1,0 +1,57 @@
+﻿@model EuforiaEssencePW.Models.ViewModels.FiltroAuditoriaViewModel
+@using EuforiaEssencePW.Services
+
+<div asp-validation-summary="All"
+     class="text-danger mb-3"></div>
+
+<div class="row g-3">
+    <div class="col-sm-6 col-lg-4">
+        <label asp-for="Seccion" class="form-label"></label>
+
+        <select asp-for="Seccion" class="form-select">
+            @foreach (var seccion in AuditoriaConsultas.Secciones)
+            {
+                <option value="@seccion.Key">@seccion.Value</option>
+            }
+        </select>
+    </div>
+
+    <div class="col-sm-6 col-lg-4">
+        <label asp-for="Desde" class="form-label"></label>
+        <input asp-for="Desde" type="date" class="form-control" />
+    </div>
+
+    <div class="col-sm-6 col-lg-4">
+        <label asp-for="Hasta" class="form-label"></label>
+        <input asp-for="Hasta" type="date" class="form-control" />
+    </div>
+
+    <div class="col-sm-6 col-lg-4">
+        <label asp-for="Entidad" class="form-label"></label>
+
+        <select asp-for="Entidad"
+                asp-items="@(new Microsoft.AspNetCore.Mvc.Rendering.SelectList(Model.Entidades))"
+                class="form-select">
+            <option value="">Todas las entidades</option>
+        </select>
+    </div>
+
+    <div class="col-sm-6 col-lg-4">
+        <label asp-for="Accion" class="form-label"></label>
+
+        <select asp-for="Accion" class="form-select">
+            <option value="">Todas las acciones</option>
+            <option value="Alta">Alta</option>
+            <option value="Modificación">Modificación</option>
+            <option value="Eliminación">Eliminación</option>
+            <option value="Error">Error</option>
+        </select>
+    </div>
+
+    <div class="col-sm-6 col-lg-4">
+        <label asp-for="Usuario" class="form-label"></label>
+        <input asp-for="Usuario"
+               class="form-control"
+               placeholder="Correo o nombre registrado" />
+    </div>
+</div>

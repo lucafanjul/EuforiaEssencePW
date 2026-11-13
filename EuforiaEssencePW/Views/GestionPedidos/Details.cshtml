@@ -1,0 +1,136 @@
+﻿@model EuforiaEssencePW.Models.Pedido
+
+@{
+    ViewData["Title"] = "Gestión del pedido";
+    var cultura = System.Globalization.CultureInfo.GetCultureInfo("es-AR");
+
+    var siguienteEstado = Model.Estado switch
+    {
+        "Pendiente" => "En preparación",
+        "En preparación" => "Enviado",
+        "Enviado" => "Entregado",
+        _ => null
+    };
+
+    var fecha = DateTime.SpecifyKind(
+        Model.FechaPedido, DateTimeKind.Utc).AddHours(-3);
+}
+
+<h1>Pedido #@Model.Id</h1>
+
+@if (TempData["Exito"] is string exito)
+{
+    <div class="alert alert-success"
+         role="alert"
+         data-notificacion
+         data-tipo="success">
+        @exito
+    </div>
+}
+
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger"
+         role="alert"
+         data-notificacion
+         data-tipo="error">
+        @error
+    </div>
+}
+
+<div class="card card-body my-3">
+    <p><strong>Cliente:</strong> @Model.Usuario?.Email</p>
+
+    <p>
+        <strong>Fecha:</strong>
+        @fecha.ToString("dd/MM/yyyy HH:mm") — Argentina
+    </p>
+
+    <p><strong>Estado:</strong> @Model.Estado</p>
+
+    <p><strong>Entrega:</strong> @Model.DireccionEntrega</p>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Observaciones))
+    {
+        <p><strong>Observaciones:</strong> @Model.Observaciones</p>
+    }
+</div>
+<partial name="_EstadoPago" model="Model" />
+<div class="table-responsive">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Perfume</th>
+                <th>Contenido</th>
+                <th>Cantidad</th>
+                <th>Precio unitario</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var detalle in Model.Detalles)
+            {
+                <tr>
+                    <td>@detalle.NombrePerfume</td>
+                    <td>@detalle.Mililitros ml</td>
+                    <td>@detalle.Cantidad</td>
+                    <td>@detalle.PrecioUnitario.ToString("C2", cultura)</td>
+                    <td>@detalle.Subtotal.ToString("C2", cultura)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<p class="fs-4 fw-bold text-end">
+    Total de productos: @Model.Total.ToString("C2", cultura)
+</p>
+
+<div class="d-flex flex-wrap gap-2">
+    @if (siguienteEstado != null &&
+        Model.PuedeCambiarA(siguienteEstado))
+    {
+        <form asp-controller="GestionPedidos"
+              asp-action="CambiarEstado"
+              method="post"
+              data-confirmar
+              data-titulo="¿Actualizar el estado del pedido?"
+              data-mensaje="El pedido pasará a @siguienteEstado."
+              data-boton="Actualizar estado">
+
+            <input type="hidden" name="id" value="@Model.Id" />
+
+            <input type="hidden"
+                   name="nuevoEstado"
+                   value="@siguienteEstado" />
+
+            <button type="submit" class="btn btn-primary">
+                Pasar a @siguienteEstado
+            </button>
+        </form>
+    }
+
+    @if (Model.PuedeCancelarse())
+    {
+        <form asp-controller="Pedidos"
+              asp-action="Cancelar"
+              method="post"
+              data-confirmar
+              data-titulo="¿Cancelar este pedido?"
+              data-mensaje="Las unidades se devolverán al stock. Esta operación no se puede deshacer."
+              data-boton="Cancelar pedido">
+
+            <input type="hidden" name="id" value="@Model.Id" />
+
+            <button type="submit" class="btn btn-outline-danger">
+                Cancelar pedido
+            </button>
+        </form>
+    }
+
+    <a asp-controller="GestionPedidos"
+       asp-action="Index"
+       class="btn btn-secondary">
+        Volver a gestión de pedidos
+    </a>
+</div>

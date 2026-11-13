@@ -1,0 +1,82 @@
+﻿@model EuforiaEssencePW.Models.Perfume
+
+@{
+    var cultura = System.Globalization.CultureInfo.GetCultureInfo("es-AR");
+
+    var disponibles = Model.Presentaciones
+        .Where(p => p.Activo && p.Stock > 0)
+        .ToList();
+}
+
+<article class="ee-producto">
+    <a asp-controller="Catalogo"
+       asp-action="Details"
+       asp-route-id="@Model.Id"
+       class="ee-producto-imagen"
+       aria-label="Ver @Model.Nombre">
+
+        @if (!string.IsNullOrWhiteSpace(Model.ImagenUrl))
+        {
+            <img src="@Url.Content(Model.ImagenUrl)"
+                 alt="@Model.Nombre"
+                 loading="lazy" />
+        }
+        else
+        {
+            <span class="ee-sin-imagen">
+                Imagen no disponible
+            </span>
+        }
+    </a>
+
+    <div class="ee-producto-contenido">
+        <p class="ee-marca">@Model.Marca?.Nombre</p>
+
+        <h3>
+            <a asp-controller="Catalogo"
+               asp-action="Details"
+               asp-route-id="@Model.Id">
+                @Model.Nombre
+            </a>
+        </h3>
+
+        <div class="ee-producto-precio">
+            @if (disponibles.Any())
+            {
+                <small>Desde</small>
+                <strong>
+                    @disponibles.Min(p => p.Precio).ToString("C2", cultura)
+                </strong>
+            }
+            else
+            {
+                <span class="text-muted">Sin unidades disponibles</span>
+            }
+        </div>
+
+        @if (disponibles.Any())
+        {
+            <a asp-controller="Catalogo"
+               asp-action="Details"
+               asp-route-id="@Model.Id"
+               class="btn btn-primary w-100 mt-auto">
+                Ver opciones y comprar
+            </a>
+        }
+        else
+        {
+            <button type="button"
+                    class="btn ee-btn-sin-stock w-100 mt-auto"
+                    disabled>
+                Sin stock
+            </button>
+
+            <a asp-controller="Catalogo"
+               asp-action="Details"
+               asp-route-id="@Model.Id"
+               class="small text-center mt-2">
+                Ver detalle
+            </a>
+        }
+    </div>
+</article>

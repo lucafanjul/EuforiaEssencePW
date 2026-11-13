@@ -1,0 +1,225 @@
+﻿@model EuforiaEssencePW.Models.ViewModels.CarritoViewModel
+
+@{
+    var cultura = System.Globalization.CultureInfo.GetCultureInfo("es-AR");
+}
+
+@if (!Model.Lineas.Any())
+{
+    <div class="ee-vacio">
+        <h2>Tu carrito está vacío</h2>
+        <p>Todavía no agregaste productos.</p>
+
+        <a asp-controller="Catalogo"
+           asp-action="Index"
+           class="btn btn-primary">
+            Ver perfumes
+        </a>
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="ee-carrito-lista">
+                @foreach (var linea in Model.Lineas)
+                {
+                    var puedeAumentar =
+                    linea.Disponible &&
+                    linea.Cantidad < Math.Min(linea.Stock, 999);
+
+                    <article class="ee-carrito-linea">
+                        <div class="ee-carrito-imagen">
+                            @if (!string.IsNullOrWhiteSpace(linea.ImagenUrl))
+                            {
+                                <img src="@Url.Content(linea.ImagenUrl)"
+                                     alt="@linea.Nombre" />
+                            }
+                            else
+                            {
+                                <span class="small text-muted">
+                                    Sin imagen
+                                </span>
+                            }
+                        </div>
+
+                        <div class="ee-carrito-producto">
+                            <h2>@linea.Nombre</h2>
+
+                            @if (linea.Mililitros > 0)
+                            {
+                                <p class="ee-categoria">
+                                    @linea.Mililitros ml
+                                </p>
+                            }
+
+                            <p class="ee-carrito-unitario">
+                                @linea.Precio.ToString("C2", cultura)
+                                <span>por unidad</span>
+                            </p>
+
+                            @if (!linea.Disponible)
+                            {
+                                <div class="text-danger small mb-3">
+                                    Revisá la cantidad o quitá el producto.
+                                    Stock actual: @linea.Stock.
+                                </div>
+                            }
+
+                            <div class="ee-carrito-controles">
+                                <div class="ee-selector-cantidad">
+                                    <form asp-controller="Carrito"
+                                          asp-action="CambiarCantidad"
+                                          method="post">
+
+                                        <input type="hidden"
+                                               name="presentacionId"
+                                               value="@linea.PresentacionId" />
+
+                                        <input type="hidden"
+                                               name="variacion"
+                                               value="-1" />
+
+                                        <button type="submit"
+                                                class="ee-cantidad-boton"
+                                                disabled="@(linea.Cantidad <= 1)"
+                                                aria-label="Restar una unidad de @linea.Nombre">
+                                            −
+                                        </button>
+                                    </form>
+
+                                    <span class="ee-cantidad-valor">
+                                        @linea.Cantidad
+                                    </span>
+
+                                    <form asp-controller="Carrito"
+                                          asp-action="CambiarCantidad"
+                                          method="post">
+
+                                        <input type="hidden"
+                                               name="presentacionId"
+                                               value="@linea.PresentacionId" />
+
+                                        <input type="hidden"
+                                               name="variacion"
+                                               value="1" />
+
+                                        <button type="submit"
+                                                class="ee-cantidad-boton"
+                                                disabled="@(!puedeAumentar)"
+                                                aria-label="Sumar una unidad de @linea.Nombre">
+                                            +
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <form asp-controller="Carrito"
+                                      asp-action="Quitar"
+                                      method="post"
+                                      data-confirmar
+                                      data-titulo="¿Quitar este producto?"
+                                      data-mensaje="Se eliminarán todas las unidades de esta presentación del carrito."
+                                      data-boton="Quitar producto">
+
+                                    <input type="hidden"
+                                           name="presentacionId"
+                                           value="@linea.PresentacionId" />
+
+                                    <button type="submit"
+                                            class="btn ee-boton-papelera"
+                                            title="Quitar producto"
+                                            aria-label="Quitar todas las unidades de @linea.Nombre">
+
+                                        <svg width="21" height="21"
+                                             viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.7"
+                                             stroke-linecap="round"
+                                             stroke-linejoin="round"
+                                             aria-hidden="true">
+                                            <path d="M3 6h18" />
+                                            <path d="M9 6V4h6v2" />
+                                            <path d="M5 6l1 14h12l1-14" />
+                                            <path d="M10 10v6M14 10v6" />
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="ee-carrito-subtotal">
+                            <span>Subtotal</span>
+                            <strong>
+                                @linea.Subtotal.ToString("C2", cultura)
+                            </strong>
+                        </div>
+                    </article>
+                }
+            </div>
+
+            <div class="d-flex flex-wrap justify-content-between gap-3 mt-3">
+                <a asp-controller="Catalogo"
+                   asp-action="Index"
+                   class="btn btn-outline-dark">
+                    Seguir comprando
+                </a>
+
+                <form asp-controller="Carrito"
+                      asp-action="Vaciar"
+                      method="post"
+                      data-confirmar
+                      data-titulo="¿Vaciar el carrito?"
+                      data-mensaje="Se quitarán todos los productos del carrito."
+                      data-boton="Vaciar carrito">
+
+                    <button type="submit" class="btn btn-outline-danger">
+                        Vaciar carrito
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <aside class="ee-resumen">
+                <h2>Resumen</h2>
+
+                <div class="ee-resumen-fila">
+                    <span>Unidades</span>
+                    <strong>
+                        @Model.Lineas.Sum(l => (long)l.Cantidad)
+                    </strong>
+                </div>
+
+                <div class="ee-resumen-total">
+                    <span>Total de productos</span>
+                    <strong>
+                        @Model.Total.ToString("C2", cultura)
+                    </strong>
+                </div>
+
+                @if (Model.PuedeComprar)
+                {
+                    <a asp-controller="Pedidos"
+                       asp-action="Confirmar"
+                       class="btn btn-primary w-100">
+                        Continuar compra
+                    </a>
+                }
+                else
+                {
+                    <div class="alert alert-warning mb-0">
+                        Reducí las cantidades o quitá los productos
+                        sin disponibilidad para continuar.
+                    </div>
+                }
+
+                <p class="ee-resumen-aclaracion">
+                    Precios en pesos argentinos.
+                    El carrito no reserva unidades.
+                    El stock se verifica al confirmar el pedido.
+                </p>
+            </aside>
+        </div>
+    </div>
+}

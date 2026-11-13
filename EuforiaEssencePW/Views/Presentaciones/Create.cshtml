@@ -1,0 +1,33 @@
+﻿@model EuforiaEssencePW.Models.Presentacion
+
+@{
+    ViewData["Title"] = "Nueva presentación";
+}
+
+<h1>Nueva presentación</h1>
+<p class="text-muted">
+    Seleccioná el perfume y definí su tamaño, precio y stock.
+</p>
+<hr />
+
+<div class="row">
+    <div class="col-lg-8">
+        <form asp-action="Create" method="post">
+            <partial name="_CamposPresentacion" model="Model" />
+
+            <button type="submit" class="btn btn-primary">
+                Guardar
+            </button>
+
+            <a asp-action="Index" class="btn btn-secondary">
+                Volver
+            </a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

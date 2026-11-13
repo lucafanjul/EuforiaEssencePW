@@ -1,0 +1,82 @@
+﻿@{
+    var controlador = ViewContext.RouteData.Values["controller"]?.ToString();
+    var query = Context.Request.Query;
+    var esPerfumes = controlador == "Perfumes";
+    var esPresentaciones = controlador == "Presentaciones";
+
+    var etiquetaBusqueda = controlador switch
+    {
+        "Categorias" => "Nombre o descripción",
+        "Presentaciones" => "Nombre del perfume",
+        _ => "Nombre"
+    };
+
+    var estado = query["activo"].ToString();
+    var stock = query["stock"].ToString();
+}
+
+<form asp-controller="@controlador" asp-action="Index" method="get"
+      class="ee-filtros mb-4">
+    <div class="row g-3 align-items-end">
+        <div class="col-12 col-md">
+            <label for="filtroBuscar" class="form-label">@etiquetaBusqueda</label>
+            <input id="filtroBuscar" name="buscar" type="search"
+                   value="@query["buscar"]" class="form-control" />
+        </div>
+
+        @if (esPerfumes)
+        {
+            <div class="col-6 col-md">
+                <label for="filtroMarca" class="form-label">Marca</label>
+                <select id="filtroMarca" name="marcaId" class="form-select"
+                        asp-items="@(ViewData["MarcasFiltro"] as Microsoft.AspNetCore.Mvc.Rendering.SelectList)">
+                    <option value="">Todas</option>
+                </select>
+            </div>
+
+            <div class="col-6 col-md">
+                <label for="filtroCategoria" class="form-label">Categoría</label>
+                <select id="filtroCategoria" name="categoriaId" class="form-select"
+                        asp-items="@(ViewData["CategoriasFiltro"] as Microsoft.AspNetCore.Mvc.Rendering.SelectList)">
+                    <option value="">Todas</option>
+                </select>
+            </div>
+        }
+
+        @if (esPresentaciones)
+        {
+            <div class="col-6 col-md">
+                <label for="filtroMililitros" class="form-label">Tamaño (ml)</label>
+                <input id="filtroMililitros" name="mililitros" type="number"
+                       min="1" value="@query["mililitros"]" class="form-control" />
+            </div>
+
+            <div class="col-6 col-md">
+                <label for="filtroStock" class="form-label">Stock</label>
+                <select id="filtroStock" name="stock" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="con" selected="@(stock == "con")">Con stock</option>
+                    <option value="sin" selected="@(stock == "sin")">Sin stock</option>
+                </select>
+            </div>
+        }
+
+        @if (esPerfumes || esPresentaciones)
+        {
+            <div class="col-6 col-md">
+                <label for="filtroActivo" class="form-label">Estado</label>
+                <select id="filtroActivo" name="activo" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="true" selected="@(string.Equals(estado, "true", StringComparison.OrdinalIgnoreCase))">Activo</option>
+                    <option value="false" selected="@(string.Equals(estado, "false", StringComparison.OrdinalIgnoreCase))">Inactivo</option>
+                </select>
+            </div>
+        }
+
+        <div class="col-12 col-md-auto d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Buscar</button>
+            <a asp-controller="@controlador" asp-action="Index"
+               class="btn btn-outline-secondary">Limpiar</a>
+        </div>
+    </div>
+</form>

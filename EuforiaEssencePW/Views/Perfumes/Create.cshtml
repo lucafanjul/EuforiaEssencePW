@@ -1,0 +1,32 @@
+﻿@model EuforiaEssencePW.Models.Perfume
+
+@{
+    ViewData["Title"] = "Nuevo perfume";
+}
+
+<h1>Nuevo perfume</h1>
+<hr />
+
+<div class="row">
+    <div class="col-lg-8">
+        <form asp-action="Create"
+              method="post"
+              enctype="multipart/form-data">
+            <partial name="_CamposPerfume" model="Model" />
+
+            <button type="submit" class="btn btn-primary">
+                Guardar
+            </button>
+
+            <a asp-action="Index" class="btn btn-secondary">
+                Volver
+            </a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,135 @@
+﻿@model EuforiaEssencePW.Models.RegistroAuditoria
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "Detalle de auditoría";
+
+    var anteriores =
+        JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(
+            Model.ValoresAnteriores) ?? new();
+
+    var nuevos =
+        JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(
+            Model.ValoresNuevos) ?? new();
+
+    var campos = anteriores.Keys
+        .Union(nuevos.Keys)
+        .OrderBy(c => c)
+        .ToList();
+
+    var fechaArgentina = DateTime.SpecifyKind(
+        Model.Fecha, DateTimeKind.Utc).AddHours(-3);
+
+    var claseAccion = Model.Accion switch
+    {
+        "Alta" => "ee-auditoria-alta",
+        "Modificación" => "ee-auditoria-cambio",
+        "Eliminación" => "ee-auditoria-baja",
+        _ => ""
+    };
+}
+
+<section class="ee-auditoria">
+    <header class="ee-cuenta-encabezado">
+        <div>
+            <span class="ee-cuenta-etiqueta">Administración · Auditoría</span>
+            <h1>Detalle de operación</h1>
+            <p>
+                @Model.Entidad · Registro @Model.RegistroId
+            </p>
+        </div>
+
+        <span class="ee-estado @claseAccion">@Model.Accion</span>
+    </header>
+
+    <div class="ee-auditoria-ficha">
+        <dl>
+            <div>
+                <dt>Realizada por</dt>
+                <dd>@Model.UsuarioNombre</dd>
+            </div>
+
+            <div>
+                <dt>Fecha y hora</dt>
+                <dd>
+                    @fechaArgentina.ToString("dd/MM/yyyy HH:mm:ss")
+                    <small>Argentina</small>
+                </dd>
+            </div>
+
+            <div>
+                <dt>Entidad</dt>
+                <dd>@Model.Entidad</dd>
+            </div>
+
+            <div>
+                <dt>Registro afectado</dt>
+                <dd>@Model.RegistroId</dd>
+            </div>
+        </dl>
+    </div>
+
+    @if (!campos.Any())
+    {
+        <div class="alert alert-info mt-4">
+            La operación quedó registrada sin valores de campos visibles.
+            Los datos personales de entrega se omiten del historial.
+        </div>
+    }
+    else
+    {
+        <div class="ee-auditoria-historial mt-4">
+            <div class="ee-auditoria-titulo-tabla">
+                <h2>Valores registrados</h2>
+                <span>@campos.Count campos</span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table ee-tabla-cambios align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">Campo</th>
+                            <th scope="col">Valor anterior</th>
+                            <th scope="col">Valor nuevo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var campo in campos)
+                        {
+                            var textoAnterior =
+                            anteriores.TryGetValue(campo, out var anterior)
+                            ? anterior.ValueKind == JsonValueKind.Null
+                            ? "(vacío)"
+                            : anterior.ToString()
+                            : "—";
+
+                            var textoNuevo =
+                            nuevos.TryGetValue(campo, out var nuevo)
+                            ? nuevo.ValueKind == JsonValueKind.Null
+                            ? "(vacío)"
+                            : nuevo.ToString()
+                            : "—";
+
+                            <tr>
+                                <th scope="row">@campo</th>
+                                <td class="ee-valor-anterior">@textoAnterior</td>
+                                <td class="ee-valor-nuevo">@textoNuevo</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+    <p class="ee-auditoria-aclaracion mt-3">
+        En las altas se muestran los valores nuevos; en las eliminaciones,
+        los anteriores; en las modificaciones, los campos que cambiaron.
+    </p>
+
+    <a asp-controller="Auditoria"
+       asp-action="Index"
+       class="btn btn-outline-dark mt-2">
+        Volver a auditoría
+    </a>
+</section>

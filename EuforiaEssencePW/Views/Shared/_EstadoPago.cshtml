@@ -1,0 +1,109 @@
+﻿@model EuforiaEssencePW.Models.Pedido
+
+@{
+    var esPropietario = Model.UsuarioId ==
+        User.FindFirst(
+            System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+    var aprobadoAnterior =
+        Model.EstadoPago == "Aprobado" &&
+        !Model.PagoValidadoPorAdmin;
+
+    var estadoVisible = aprobadoAnterior
+        ? "Simulado sin revisión"
+        : Model.EstadoPago;
+
+    var clase = estadoVisible switch
+    {
+        "Aprobado" => "bg-success",
+        "Rechazado" => "bg-danger",
+        "En revisión" => "bg-warning text-dark",
+        "Reintegrado" => "bg-info text-dark",
+        _ => "bg-secondary"
+    };
+}
+
+<div class="card card-body my-3 ee-pago-estado">
+    <div class="d-flex flex-wrap justify-content-between gap-3">
+        <h2 class="h5 mb-0">Pago</h2>
+
+        <span class="badge @clase">@estadoVisible</span>
+    </div>
+
+    @if (Model.EstadoPago == "En revisión")
+    {
+        <p class="text-muted mt-3 mb-0">
+            El comprobante fue recibido y espera revisión del administrador.
+        </p>
+    }
+
+    @if (Model.EstadoPago == "Aprobado" &&
+        Model.PagoValidadoPorAdmin)
+    {
+        <p class="mt-3 mb-0">
+            Pago validado por el administrador.
+        </p>
+    }
+
+    @if (aprobadoAnterior || Model.EstadoPago == "No requerido")
+    {
+        <p class="text-muted mt-3 mb-0">
+            Este pedido proviene del flujo anterior.
+            Si está pendiente, debe adjuntar un comprobante para su validación.
+        </p>
+    }
+
+    @if (Model.FechaPago.HasValue &&
+        Model.PagoValidadoPorAdmin)
+    {
+        var fecha = DateTime.SpecifyKind(
+        Model.FechaPago.Value, DateTimeKind.Utc).AddHours(-3);
+
+        <p class="mt-2 mb-1">
+            <strong>Fecha de aprobación:</strong>
+            @fecha.ToString("dd/MM/yyyy HH:mm") — Argentina
+        </p>
+    }
+
+    @if (Model.PagoValidadoPorAdmin &&
+        !string.IsNullOrWhiteSpace(Model.ReferenciaPago))
+    {
+        <p class="mb-1 ee-pago-referencia">
+            <strong>Referencia:</strong> @Model.ReferenciaPago
+        </p>
+    }
+
+    @if (Model.EstadoPago == "Reintegrado")
+    {
+        <p class="mt-3 mb-0">
+            Pedido cancelado. El reintegro está registrado de forma simulada.
+        </p>
+    }
+
+    @if (esPropietario)
+    {
+        <div class="mt-3">
+            <a asp-controller="Pagos"
+               asp-action="Pagar"
+               asp-route-id="@Model.Id"
+               class="btn btn-outline-primary">
+                @(Model.PuedePagarse()
+                            ? "Adjuntar comprobante de pago"
+                            : "Ver comprobantes de pago")
+        </a>
+    </div>
+        }
+
+    @if (User.IsInRole("Administrador") &&
+        Model.Estado == "Pendiente" &&
+        Model.EstadoPago == "En revisión")
+    {
+        <div class="mt-3">
+            <a asp-controller="Pagos"
+               asp-action="Revisiones"
+               class="btn btn-primary">
+                Revisar comprobantes pendientes
+            </a>
+        </div>
+    }
+</div>

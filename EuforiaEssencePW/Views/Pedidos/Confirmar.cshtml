@@ -1,0 +1,189 @@
+﻿@model EuforiaEssencePW.Models.ViewModels.ConfirmarCompraViewModel
+
+@{
+    ViewData["Title"] = "Confirmar compra";
+    var cultura = System.Globalization.CultureInfo.GetCultureInfo("es-AR");
+}
+
+<section class="ee-compra-pagina">
+    <header class="ee-compra-encabezado">
+        <span class="ee-etiqueta">Entrega y resumen</span>
+        <h1>Revisá tu pedido</h1>
+        <p>Elegí la dirección de entrega y confirmá tu selección.</p>
+    </header>
+
+    @if (TempData["Error"] is string error)
+    {
+        <div class="alert alert-warning" role="alert">@error</div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="ee-checkout-panel">
+                <h2>Entrega</h2>
+
+                @if (!Model.Carrito.PuedeComprar)
+                {
+                    <div class="alert alert-warning">
+                        El carrito necesita actualizarse antes de confirmar.
+                    </div>
+
+                    <a asp-controller="Carrito"
+                       asp-action="Index"
+                       class="btn btn-primary">
+                        Revisar carrito
+                    </a>
+                }
+                else if (!Model.Direcciones.Any())
+                {
+                    <p class="text-muted">
+                        Registrá una dirección para recibir tu pedido.
+                        Tu selección permanecerá en el carrito.
+                    </p>
+
+                    <a asp-controller="Direcciones"
+                       asp-action="Create"
+                       class="btn btn-primary">
+                        Agregar dirección
+                    </a>
+
+                    <a asp-controller="Carrito"
+                       asp-action="Index"
+                       class="btn btn-outline-secondary">
+                        Volver
+                    </a>
+                }
+                else
+                {
+                    <form asp-controller="Pedidos"
+                          asp-action="Confirmar"
+                          method="post">
+
+                        <input type="hidden" asp-for="Token" />
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="text-danger mb-3"></div>
+
+                        <div class="mb-4">
+                            <label asp-for="DireccionId" class="form-label">
+                                Dirección de entrega
+                            </label>
+
+                            <select asp-for="DireccionId"
+                                    class="form-select">
+                                <option value="">Seleccioná una dirección</option>
+
+                                @foreach (var direccion in Model.Direcciones)
+                                {
+                                    <option value="@direccion.Id">
+                                        @direccion.Destinatario —
+                                        @direccion.Calle @direccion.Altura
+                                        @direccion.PisoDepartamento,
+                                        @direccion.Localidad,
+                                        @direccion.Provincia
+                                        (CP @direccion.CodigoPostal)
+                                    </option>
+                                }
+                            </select>
+
+                            <span asp-validation-for="DireccionId"
+                                  class="text-danger"></span>
+
+                            <a asp-controller="Direcciones"
+                               asp-action="Index"
+                               class="ee-checkout-enlace">
+                                Administrar mis direcciones
+                            </a>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Observaciones" class="form-label">
+                                Indicaciones para la entrega
+                            </label>
+
+                            <textarea asp-for="Observaciones"
+                                      rows="3"
+                                      maxlength="500"
+                                      class="form-control"
+                                      placeholder="Piso, referencias u otras indicaciones"></textarea>
+
+                            <span asp-validation-for="Observaciones"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="ee-checkout-aviso">
+                            Al continuar se registra el pedido y se descuentan las unidades
+                            del stock. Después podrás realizar un pago simulado.
+                            No se efectuará ningún cobro real.
+                        </div>
+
+                        <button type="submit"
+                                class="btn btn-primary w-100">
+                            Crear pedido y continuar al pago
+                        </button>
+
+                        <a asp-controller="Carrito"
+                           asp-action="Index"
+                           class="btn btn-outline-secondary w-100 mt-2">
+                            Volver al carrito
+                        </a>
+                    </form>
+                }
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <aside class="ee-resumen">
+                <h2>Tu pedido</h2>
+
+                @foreach (var linea in Model.Carrito.Lineas)
+                {
+                    <div class="ee-resumen-producto">
+                        <div class="ee-resumen-miniatura">
+                            @if (!string.IsNullOrWhiteSpace(linea.ImagenUrl))
+                            {
+                                <img src="@Url.Content(linea.ImagenUrl)"
+                                     alt="@linea.Nombre" />
+                            }
+                            else
+                            {
+                                <span class="small text-muted">Sin imagen</span>
+                            }
+                        </div>
+
+                        <div class="ee-resumen-producto-datos">
+                            <strong>@linea.Nombre</strong>
+                            <span>
+                                @linea.Mililitros ml · @linea.Cantidad
+                                @(linea.Cantidad == 1 ? "unidad" : "unidades")
+                            </span>
+                            <span>
+                                @linea.Precio.ToString("C2", cultura) por unidad
+                            </span>
+                            <b>@linea.Subtotal.ToString("C2", cultura)</b>
+                        </div>
+                    </div>
+                }
+
+                <div class="ee-resumen-total">
+                    <span>Total de productos</span>
+                    <strong>
+                        @Model.Carrito.Total.ToString("C2", cultura)
+                    </strong>
+                </div>
+
+                <p class="ee-resumen-aclaracion">
+                    Precios en pesos argentinos.
+                    Si cambia el precio o la disponibilidad,
+                    te pediremos revisar nuevamente el resumen.
+                </p>
+            </aside>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

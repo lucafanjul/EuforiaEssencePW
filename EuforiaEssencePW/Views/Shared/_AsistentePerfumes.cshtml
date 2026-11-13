@@ -1,0 +1,68 @@
+﻿<button type="button"
+        id="abrirAsistente"
+        class="ee-chat-abrir"
+        aria-controls="panelAsistente"
+        aria-expanded="false">
+    Asesor de perfumes
+</button>
+
+<section id="panelAsistente"
+         class="ee-chat-panel"
+         role="region"
+         aria-labelledby="tituloAsistente"
+         hidden>
+
+    <header class="ee-chat-cabecera">
+        <div>
+            <span>Euphoria Essence</span>
+            <h2 id="tituloAsistente">Tu asesor de perfumes</h2>
+        </div>
+
+        <button type="button"
+                id="cerrarAsistente"
+                class="ee-chat-cerrar"
+                aria-label="Cerrar asistente">
+            ×
+        </button>
+    </header>
+
+    <div id="mensajesAsistente"
+         class="ee-chat-mensajes"
+         role="log"
+         aria-live="polite"
+         aria-relevant="additions">
+
+        <div class="ee-chat-mensaje ee-chat-respuesta">
+            ¡Hola! Contame qué notas te gustan, para qué ocasión
+            buscás un perfume y tu presupuesto.
+        </div>
+    </div>
+
+    <form id="formAsistente"
+          asp-area=""
+          asp-controller="Asistente"
+          asp-action="Consultar"
+          method="post"
+          class="ee-chat-formulario">
+
+        <label for="consultaAsistente" class="visually-hidden">
+            Consulta sobre perfumes
+        </label>
+
+        <textarea id="consultaAsistente"
+                  name="Mensaje"
+                  maxlength="800"
+                  rows="2"
+                  required
+                  placeholder="Busco un perfume dulce para la noche…"></textarea>
+
+        <button type="submit" id="enviarAsistente" class="btn btn-primary">
+            Enviar
+        </button>
+
+        <p>
+            Asistente con IA. Cada consulta es independiente.
+            Incluí tus preferencias y no envíes datos personales.
+        </p>
+    </form>
+</section>

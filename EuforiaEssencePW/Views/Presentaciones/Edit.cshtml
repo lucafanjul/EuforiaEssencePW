@@ -1,0 +1,35 @@
+﻿@model EuforiaEssencePW.Models.Presentacion
+
+@{
+    ViewData["Title"] = "Editar presentación";
+}
+
+<h1>Editar presentación</h1>
+<hr />
+
+<div class="row">
+    <div class="col-lg-8">
+        <form asp-action="Edit"
+              asp-route-id="@Model.Id"
+              method="post">
+
+            <input type="hidden" asp-for="Id" />
+
+            <partial name="_CamposPresentacion" model="Model" />
+
+            <button type="submit" class="btn btn-primary">
+                Guardar cambios
+            </button>
+
+            <a asp-action="Index" class="btn btn-secondary">
+                Volver
+            </a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

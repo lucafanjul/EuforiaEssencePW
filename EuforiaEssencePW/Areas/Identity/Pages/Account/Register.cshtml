@@ -1,0 +1,109 @@
+﻿@page
+@model EuforiaEssencePW.Areas.Identity.Pages.Account.RegisterModel
+
+@{
+    ViewData["Title"] = "Crear cuenta";
+}
+
+<section class="ee-acceso">
+    <div class="ee-acceso-marca">
+        <span class="ee-etiqueta">Euphoria Essence</span>
+
+        <h2>Encontrá la fragancia que habla de vos.</h2>
+
+        <p>
+            Creá tu cuenta para preparar tu carrito,
+            guardar direcciones de entrega y consultar tus compras.
+        </p>
+
+        <a asp-area=""
+           asp-controller="Catalogo"
+           asp-action="Index"
+           class="ee-acceso-volver">
+            Explorar el catálogo
+        </a>
+    </div>
+
+    <div class="ee-acceso-formulario">
+        <span class="ee-cuenta-etiqueta">Tu próxima fragancia</span>
+        <h1>Crear cuenta</h1>
+        <p class="ee-acceso-intro">
+            Completá tus datos para empezar.
+        </p>
+
+        <form method="post" asp-route-returnUrl="@Model.ReturnUrl">
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger mb-3"></div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Input.Nombre" class="form-label"></label>
+                    <input asp-for="Input.Nombre"
+                           autocomplete="given-name"
+                           class="form-control" />
+                    <span asp-validation-for="Input.Nombre"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Input.Apellido" class="form-label"></label>
+                    <input asp-for="Input.Apellido"
+                           autocomplete="family-name"
+                           class="form-control" />
+                    <span asp-validation-for="Input.Apellido"
+                          class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Email" class="form-label"></label>
+                <input asp-for="Input.Email"
+                       autocomplete="email"
+                       class="form-control" />
+                <span asp-validation-for="Input.Email"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Password" class="form-label"></label>
+                <input asp-for="Input.Password"
+                       autocomplete="new-password"
+                       class="form-control"
+                       aria-describedby="ayudaPassword" />
+                <span asp-validation-for="Input.Password"
+                      class="text-danger"></span>
+
+                <div id="ayudaPassword" class="form-text">
+                    Entre 8 y 100 caracteres, con mayúscula,
+                    minúscula, número y símbolo.
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Input.ConfirmPassword"
+                       class="form-label"></label>
+                <input asp-for="Input.ConfirmPassword"
+                       autocomplete="new-password"
+                       class="form-control" />
+                <span asp-validation-for="Input.ConfirmPassword"
+                      class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">
+                Crear cuenta
+            </button>
+        </form>
+
+        <div class="ee-acceso-alternativa">
+            <span>¿Ya tenés una cuenta?</span>
+            <a asp-page="./Login"
+               asp-route-returnUrl="@Model.ReturnUrl">
+                Iniciar sesión
+            </a>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

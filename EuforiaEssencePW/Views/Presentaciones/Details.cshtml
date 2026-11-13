@@ -1,0 +1,82 @@
+﻿@model EuforiaEssencePW.Models.Presentacion
+@inject Microsoft.AspNetCore.Identity.UserManager<EuforiaEssencePW.Models.Usuario> UserManager
+
+@{
+    ViewData["Title"] = "Detalle de presentación";
+
+    var cultura = System.Globalization.CultureInfo.GetCultureInfo("es-AR");
+
+    var creador = Model.UsuarioCreacionId == null
+        ? null
+        : await UserManager.FindByIdAsync(Model.UsuarioCreacionId);
+
+    var modificador = Model.UsuarioModificacionId == null
+        ? null
+        : await UserManager.FindByIdAsync(Model.UsuarioModificacionId);
+
+    var nombreCreador = creador == null
+        ? "Sistema / usuario no disponible"
+        : string.IsNullOrWhiteSpace(creador.NombreCompleto)
+            ? creador.Email
+            : creador.NombreCompleto;
+
+    var nombreModificador = modificador == null
+        ? "Sistema / usuario no disponible"
+        : string.IsNullOrWhiteSpace(modificador.NombreCompleto)
+            ? modificador.Email
+            : modificador.NombreCompleto;
+}
+
+<h1>Detalle de presentación</h1>
+
+<div class="card my-3">
+    <div class="card-body">
+        <h2 class="h4">@Model.Perfume?.Nombre</h2>
+
+        <dl class="row mb-0">
+            <dt class="col-sm-4">Contenido</dt>
+            <dd class="col-sm-8">@Model.Mililitros ml</dd>
+
+            <dt class="col-sm-4">Precio (ARS)</dt>
+            <dd class="col-sm-8">@Model.Precio.ToString("C2", cultura)</dd>
+
+            <dt class="col-sm-4">Stock</dt>
+            <dd class="col-sm-8">@Model.Stock unidades</dd>
+
+            <dt class="col-sm-4">Estado</dt>
+            <dd class="col-sm-8">@(Model.Activo ? "Activa" : "Inactiva")</dd>
+        </dl>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <h2 class="h5">Auditoría</h2>
+
+        <p>
+            <strong>Creada por:</strong> @nombreCreador<br />
+            <strong>Fecha:</strong>
+            @Model.FechaCreacion.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+        </p>
+
+        @if (Model.FechaModificacion.HasValue)
+        {
+            <p class="mb-0">
+                <strong>Última modificación por:</strong>
+                @nombreModificador<br />
+                <strong>Fecha:</strong>
+                @Model.FechaModificacion.Value.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+            </p>
+        }
+    </div>
+</div>
+
+<a asp-action="Edit"
+   asp-route-id="@Model.Id"
+   class="btn btn-primary">
+    Editar
+</a>
+
+<a asp-action="Index" class="btn btn-secondary">
+    Volver
+</a>

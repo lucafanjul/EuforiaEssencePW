@@ -1,0 +1,192 @@
+﻿@model IEnumerable<EuforiaEssencePW.Models.Perfume>
+
+@{
+    ViewData["Title"] = "Catálogo";
+    var cultura = System.Globalization.CultureInfo.GetCultureInfo("es-AR");
+    var perfumes = Model.ToList();
+}
+
+<section class="ee-catalogo">
+    <header class="ee-catalogo-hero">
+        <span class="ee-etiqueta">Euphoria Essence</span>
+
+        <h1>Catálogo de perfumes</h1>
+
+        <p>
+            Consultá perfumes, presentaciones, precios y disponibilidad.
+        </p>
+    </header>
+
+    <form asp-controller="Catalogo"
+          asp-action="Index"
+          method="get"
+          class="ee-filtros">
+
+        <div class="row g-3 align-items-end">
+            <div class="col-lg-4">
+                <label for="buscar" class="form-label">
+                    ¿Qué fragancia buscás?
+                </label>
+                <input id="buscar"
+                       name="buscar"
+                       value="@ViewBag.Buscar"
+                       class="form-control"
+                       placeholder="Nombre, descripción o notas" />
+            </div>
+
+            <div class="col-sm-6 col-lg-3">
+                <label for="marcaId" class="form-label">Marca</label>
+                <select id="marcaId"
+                        name="marcaId"
+                        asp-items="ViewBag.Marcas"
+                        class="form-select">
+                    <option value="">Todas las marcas</option>
+                </select>
+            </div>
+
+            <div class="col-sm-6 col-lg-3">
+                <label for="categoriaId" class="form-label">
+                    Categoría
+                </label>
+                <select id="categoriaId"
+                        name="categoriaId"
+                        asp-items="ViewBag.Categorias"
+                        class="form-select">
+                    <option value="">Todas las categorías</option>
+                </select>
+            </div>
+
+            <div class="col-lg-2">
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1">
+                        Filtrar
+                    </button>
+                    <a asp-action="Index"
+                       class="btn btn-outline-secondary">
+                        Limpiar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <div class="ee-resultados">
+        <h2>Nuestra colección</h2>
+        <span>
+            @perfumes.Count @(perfumes.Count == 1 ? "perfume" : "perfumes")
+        </span>
+    </div>
+
+    @if (!perfumes.Any())
+    {
+        <div class="ee-vacio">
+            <h3>No encontramos esa fragancia</h3>
+            <p>Probá con otro nombre, marca o categoría.</p>
+            <a asp-action="Index" class="btn btn-outline-dark">
+                Ver todo el catálogo
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="ee-productos">
+            @foreach (var perfume in perfumes)
+            {
+                var activas = perfume.Presentaciones
+                .Where(p => p.Activo)
+                .OrderBy(p => p.Mililitros)
+                .ToList();
+
+                var disponibles = activas
+                .Where(p => p.Stock > 0)
+                .ToList();
+
+                <article class="ee-producto">
+                    <a asp-action="Details"
+                       asp-route-id="@perfume.Id"
+                       class="ee-producto-imagen"
+                       aria-label="Ver @perfume.Nombre">
+
+                        @if (!string.IsNullOrWhiteSpace(perfume.ImagenUrl))
+                        {
+                            <img src="@Url.Content(perfume.ImagenUrl)"
+                                 alt="@perfume.Nombre"
+                                 loading="lazy" />
+                        }
+                        else
+                        {
+                            <span class="ee-sin-imagen">
+                                Euphoria Essence
+                                <small>Imagen no disponible</small>
+                            </span>
+                        }
+                    </a>
+
+                    <div class="ee-producto-contenido">
+                        <p class="ee-marca">@perfume.Marca?.Nombre</p>
+
+                        <h3>
+                            <a asp-action="Details"
+                               asp-route-id="@perfume.Id">
+                                @perfume.Nombre
+                            </a>
+                        </h3>
+
+                        <p class="ee-categoria">
+                            @perfume.Categoria?.Nombre
+                        </p>
+
+                        <div class="ee-tamanos">
+                            @foreach (var presentacion in activas)
+                            {
+                                <span>@presentacion.Mililitros ml</span>
+                            }
+                        </div>
+
+                        <div class="ee-producto-precio">
+                            @if (disponibles.Any())
+                            {
+                                <small>Desde</small>
+                                <strong>
+                                    @disponibles.Min(p => p.Precio).ToString("C2", cultura)
+                                </strong>
+                            }
+                            else
+                            {
+                                <span class="text-muted">
+                                    @("Sin unidades disponibles")
+                    </span>
+                                        }
+                        </div>
+
+                        @if (disponibles.Any())
+                        {
+                            <a asp-action="Details"
+                               asp-route-id="@perfume.Id"
+                               class="btn btn-primary w-100 mt-auto">
+                                Ver opciones y comprar
+                            </a>
+                        }
+                        else
+                        {
+                            <button type="button"
+                                    class="btn ee-btn-sin-stock w-100 mt-auto"
+                                    disabled>
+                                Sin stock
+                            </button>
+                        }
+
+                        @if (User.IsInRole("Administrador"))
+                        {
+                            <a asp-controller="Presentaciones"
+                               asp-action="Index"
+                               class="btn btn-outline-secondary w-100 mt-2">
+                                Administrar stock
+                            </a>
+                        }
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</section>

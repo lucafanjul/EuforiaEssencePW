@@ -1,0 +1,40 @@
+﻿@model EuforiaEssencePW.Models.ViewModels.CarritoViewModel
+
+@{
+    ViewData["Title"] = "Mi carrito";
+}
+
+<section class="ee-compra-pagina">
+    <header class="ee-compra-encabezado">
+        <div>
+            <span class="ee-etiqueta">Euphoria Essence</span>
+            <h1>Mi carrito</h1>
+            <p>Revisá los productos y las cantidades antes de comprar.</p>
+        </div>
+    </header>
+
+    @if (TempData["Exito"] is string exito)
+    {
+        <div class="alert alert-success"
+             role="alert"
+             data-notificacion
+             data-tipo="success">
+            @exito
+        </div>
+    }
+
+    @if (TempData["Error"] is string error)
+    {
+        <div class="alert alert-danger"
+             role="alert"
+             data-notificacion
+             data-tipo="error">
+            @error
+        </div>
+    }
+
+    <div id="contenidoCarrito"
+         data-url="@Url.Action("Contenido", "Carrito")">
+        <partial name="_Contenido" model="Model" />
+    </div>
+</section>

@@ -1,0 +1,42 @@
+﻿@model EuforiaEssencePW.Models.Categoria
+
+@{
+    ViewData["Title"] = "Eliminar categoría";
+}
+
+<h1>Eliminar categoría</h1>
+
+<div class="card card-body my-3">
+    <h2 class="h5">@Model.Nombre</h2>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Descripcion))
+    {
+        <p>@Model.Descripcion</p>
+    }
+
+    <p class="text-muted mb-0">
+        Solo se puede eliminar una categoría sin perfumes asociados.
+    </p>
+</div>
+
+<form asp-controller="Categorias"
+      asp-action="Delete"
+      asp-route-id="@Model.Id"
+      method="post"
+      data-confirmar
+      data-titulo="¿Eliminar esta categoría?"
+      data-mensaje="Esta operación no se puede deshacer."
+      data-boton="Eliminar categoría">
+
+    <input type="hidden" asp-for="Id" />
+
+    <div class="d-flex flex-wrap gap-2">
+        <button type="submit" class="btn btn-danger">
+            Eliminar categoría
+        </button>
+
+        <a asp-action="Index" class="btn btn-secondary">
+            Volver
+        </a>
+    </div>
+</form>

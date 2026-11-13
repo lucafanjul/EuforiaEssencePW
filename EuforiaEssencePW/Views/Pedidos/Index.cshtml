@@ -1,0 +1,131 @@
+﻿@model IEnumerable<EuforiaEssencePW.Models.Pedido>
+
+@{
+    ViewData["Title"] = "Mis pedidos";
+    var cultura = System.Globalization.CultureInfo.GetCultureInfo("es-AR");
+    var pedidos = Model.ToList();
+}
+
+<section class="ee-cuenta">
+    <header class="ee-cuenta-encabezado">
+        <div>
+            <span class="ee-cuenta-etiqueta">Mi cuenta</span>
+            <h1>Mis pedidos</h1>
+            <p>Consultá tus compras y el estado de cada pedido.</p>
+        </div>
+
+        <a asp-controller="Catalogo"
+           asp-action="Index"
+           class="btn btn-outline-dark">
+            Seguir comprando
+        </a>
+    </header>
+
+    @if (TempData["Exito"] is string exito)
+    {
+        <div class="alert alert-success"
+             role="alert"
+             data-notificacion
+             data-tipo="success">
+            @exito
+        </div>
+    }
+
+    @if (TempData["Error"] is string error)
+    {
+        <div class="alert alert-danger"
+             role="alert"
+             data-notificacion
+             data-tipo="error">
+            @error
+        </div>
+    }
+
+    @if (!pedidos.Any())
+    {
+        <div class="ee-vacio">
+            <h2>Tu historia empieza con una fragancia</h2>
+            <p>Todavía no realizaste pedidos.</p>
+
+            <a asp-controller="Catalogo"
+               asp-action="Index"
+               class="btn btn-primary">
+                Explorar el catálogo
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="ee-pedidos-lista">
+            @foreach (var pedido in pedidos)
+            {
+                var fecha = DateTime.SpecifyKind(
+                pedido.FechaPedido, DateTimeKind.Utc).AddHours(-3);
+
+                var claseEstado = pedido.Estado switch
+                {
+                    "Pendiente" => "ee-estado-pendiente",
+                    "En preparación" => "ee-estado-preparacion",
+                    "Enviado" => "ee-estado-enviado",
+                    "Entregado" => "ee-estado-entregado",
+                    "Cancelado" => "ee-estado-cancelado",
+                    _ => ""
+                };
+
+                <article class="ee-pedido-tarjeta">
+                    <div class="ee-pedido-cabecera">
+                        <div>
+                            <span class="ee-cuenta-etiqueta">Pedido</span>
+                            <h2>#@pedido.Id</h2>
+                            <p class="ee-pedido-fecha">
+                                @fecha.ToString("dd/MM/yyyy HH:mm") · Argentina
+                            </p>
+                        </div>
+
+                        <span class="ee-estado @claseEstado">
+                            @pedido.Estado
+                        </span>
+                    </div>
+
+                    <div class="ee-pedido-productos">
+                        @foreach (var detalle in pedido.Detalles)
+                        {
+                            <div class="ee-pedido-producto">
+                                <span>
+                                    <strong>@detalle.NombrePerfume</strong>
+                                    <small>
+                                        @detalle.Mililitros ml ·
+                                        @detalle.Cantidad
+                                        @(detalle.Cantidad == 1 ? "unidad" : "unidades")
+                                    </small>
+                                </span>
+
+                                <span>
+                                    @detalle.Subtotal.ToString("C2", cultura)
+                                </span>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="ee-pedido-pie">
+                        <div>
+                            <span class="ee-total-etiqueta">
+                                Total de productos
+                            </span>
+                            <strong>
+                                @pedido.Total.ToString("C2", cultura)
+                            </strong>
+                        </div>
+
+                        <a asp-controller="Pedidos"
+                           asp-action="Details"
+                           asp-route-id="@pedido.Id"
+                           class="btn btn-outline-primary">
+                            Ver pedido
+                        </a>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</section>

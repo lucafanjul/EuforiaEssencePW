@@ -1,0 +1,11 @@
+﻿/* Los estilos generales se centralizan en wwwroot/css/site.css. */
+
+a.navbar-brand {
+    white-space: nowrap;
+    word-break: normal;
+    text-align: left;
+}
+
+.box-shadow {
+    box-shadow: 0 .25rem 1rem rgba(23, 23, 21, .04);
+}

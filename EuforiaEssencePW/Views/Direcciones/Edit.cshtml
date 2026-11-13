@@ -1,0 +1,69 @@
+﻿@model EuforiaEssencePW.Models.ViewModels.DireccionViewModel
+
+@{
+    ViewData["Title"] = "Editar dirección";
+}
+
+<section class="ee-cuenta">
+    <header class="ee-cuenta-encabezado">
+        <div>
+            <span class="ee-cuenta-etiqueta">Mi cuenta · Direcciones</span>
+            <h1>Editar dirección</h1>
+            <p>Actualizá los datos para tus próximas entregas.</p>
+        </div>
+    </header>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="ee-checkout-panel">
+                <h2>Datos de entrega</h2>
+
+                <form asp-controller="Direcciones"
+                      asp-action="Edit"
+                      asp-route-id="@Model.Id"
+                      method="post">
+
+                    <input type="hidden" asp-for="Id" />
+
+                    <partial name="_CamposDireccion" model="Model" />
+
+                    <div class="ee-formulario-acciones">
+                        <button type="submit" class="btn btn-primary">
+                            Guardar cambios
+                        </button>
+
+                        <a asp-controller="Direcciones"
+                           asp-action="Index"
+                           class="btn btn-outline-secondary">
+                            Volver a mis direcciones
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <aside class="ee-ayuda-direccion">
+                <span class="ee-cuenta-etiqueta">Tus datos</span>
+                <h2>Una dirección actualizada</h2>
+
+                <p>
+                    Revisá el destinatario, la ubicación y el código postal
+                    antes de guardar.
+                </p>
+
+                <p>
+                    Estos cambios se usarán en futuras compras.
+                    Los pedidos ya confirmados conservan la dirección
+                    registrada al momento de comprarlos.
+                </p>
+            </aside>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

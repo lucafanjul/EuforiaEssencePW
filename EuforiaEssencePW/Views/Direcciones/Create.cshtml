@@ -1,0 +1,65 @@
+﻿@model EuforiaEssencePW.Models.ViewModels.DireccionViewModel
+
+@{
+    ViewData["Title"] = "Nueva dirección";
+}
+
+<section class="ee-cuenta">
+    <header class="ee-cuenta-encabezado">
+        <div>
+            <span class="ee-cuenta-etiqueta">Mi cuenta · Direcciones</span>
+            <h1>Nueva dirección</h1>
+            <p>Contanos dónde querés recibir tus fragancias.</p>
+        </div>
+    </header>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="ee-checkout-panel">
+                <h2>Datos de entrega</h2>
+
+                <form asp-controller="Direcciones"
+                      asp-action="Create"
+                      method="post">
+
+                    <partial name="_CamposDireccion" model="Model" />
+
+                    <div class="ee-formulario-acciones">
+                        <button type="submit" class="btn btn-primary">
+                            Guardar dirección
+                        </button>
+
+                        <a asp-controller="Direcciones"
+                           asp-action="Index"
+                           class="btn btn-outline-secondary">
+                            Volver a mis direcciones
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <aside class="ee-ayuda-direccion">
+                <span class="ee-cuenta-etiqueta">Antes de guardar</span>
+                <h2>Que tu pedido llegue a destino</h2>
+
+                <p>
+                    Indicá el nombre de quien recibe, la calle,
+                    la altura y el código postal.
+                </p>
+
+                <p>
+                    Si corresponde, agregá el piso y departamento.
+                    Podrás seleccionar esta dirección al confirmar una compra.
+                </p>
+            </aside>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

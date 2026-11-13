@@ -1,0 +1,103 @@
+﻿@model EuforiaEssencePW.Models.ViewModels.AnalisisAuditoriaViewModel
+
+@{
+    ViewData["Title"] = "Análisis de auditoría con IA";
+}
+
+<section class="ee-auditoria">
+    <header class="ee-cuenta-encabezado">
+        <div>
+            <span class="ee-cuenta-etiqueta">Administración · Auditoría</span>
+            <h1>Análisis con IA</h1>
+            <p>Resumen de cambios y errores registrados.</p>
+        </div>
+
+        <a asp-controller="Auditoria"
+           asp-action="Index"
+           asp-route-seccion="@Model.Seccion"
+           asp-route-desde="@(Model.Desde?.ToString("yyyy-MM-dd"))"
+           asp-route-hasta="@(Model.Hasta?.ToString("yyyy-MM-dd"))"
+           asp-route-entidad="@Model.Entidad"
+           asp-route-accion="@Model.Accion"
+           asp-route-usuario="@Model.Usuario"
+           class="btn btn-outline-dark">
+            Ver historial original
+        </a>
+    </header>
+
+    <form asp-controller="AuditoriaIA"
+          asp-action="Analizar"
+          method="post"
+          class="ee-filtros mb-4"
+          id="formAnalisisAuditoria">
+
+        <partial name="_FiltrosAuditoria" model="Model" />
+
+        <button type="submit"
+                class="btn btn-primary mt-3"
+                id="botonAnalizar">
+            Analizar registros
+        </button>
+
+        <p class="text-muted small mt-3 mb-0">
+            Se analizan hasta 100 operaciones recientes.
+            Los usuarios se identifican con alias.
+            No se envían archivos, direcciones, correos ni contraseñas.
+        </p>
+    </form>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Error))
+    {
+        <div class="alert alert-warning" role="alert">
+            @Model.Error
+        </div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.Resultado))
+    {
+        <article class="ee-checkout-panel">
+            <h2>Resultado del análisis</h2>
+
+            <p class="text-muted">
+                Se analizaron @Model.Analizados de @Model.Total
+                operaciones encontradas.
+            </p>
+
+            @if (Model.Total > Model.Analizados)
+            {
+                <div class="alert alert-info">
+                    El análisis utiliza las 100 operaciones más recientes,
+                    no todo el historial filtrado.
+                </div>
+            }
+
+            <div class="ee-resultado-ia">@Model.Resultado</div>
+
+            <p class="text-muted small mt-4 mb-0">
+                Verificá las observaciones con los registros originales.
+                La IA no modifica datos ni valida pagos.
+            </p>
+        </article>
+    }
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.getElementById("formAnalisisAuditoria")
+            .addEventListener("submit", function (event) {
+                if (event.defaultPrevented) return;
+
+                if (window.jQuery &&
+                    typeof jQuery.fn.valid === "function" &&
+                    !jQuery(this).valid()) {
+                    return;
+                }
+
+                const boton = document.getElementById("botonAnalizar");
+                boton.disabled = true;
+                boton.textContent = "Analizando…";
+            });
+    </script>
+}

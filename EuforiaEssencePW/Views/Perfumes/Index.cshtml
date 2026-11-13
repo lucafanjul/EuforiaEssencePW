@@ -1,0 +1,114 @@
+﻿@model IEnumerable<EuforiaEssencePW.Models.Perfume>
+
+@{
+    ViewData["Title"] = "Perfumes";
+}
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+        <h1 class="mb-1">Perfumes</h1>
+        <p class="text-muted mb-0">
+            Administrá los perfumes del catálogo.
+        </p>
+    </div>
+
+    <a asp-action="Create" class="btn btn-primary">
+        Nuevo perfume
+    </a>
+</div>
+
+@if (TempData["Exito"] is string exito)
+{
+    <div class="alert alert-success" role="alert">@exito</div>
+}
+
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger" role="alert">@error</div>
+}
+
+<partial name="_FiltrosListadoAdmin" />
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-3">Imagen</th>
+                    <th>Perfume</th>
+                    <th>Marca</th>
+                    <th>Categoría</th>
+                    <th>Estado</th>
+                    <th class="text-end pe-3">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+ 
+
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="ps-3">
+                            @if (!string.IsNullOrWhiteSpace(item.ImagenUrl))
+                            {
+                                <img src="@Url.Content(item.ImagenUrl)"
+                                     alt="@item.Nombre"
+                                     style="width: 64px; height: 80px; object-fit: contain;"
+                                     class="rounded" />
+                            }
+                            else
+                            {
+                                <span class="text-muted small">
+                                    Sin imagen
+                                </span>
+                            }
+                        </td>
+
+                        <td>
+                            <strong>@item.Nombre</strong>
+                        </td>
+
+                        <td>@item.Marca?.Nombre</td>
+                        <td>@item.Categoria?.Nombre</td>
+
+                        <td>
+                            @if (item.Activo)
+                            {
+                                <span class="badge bg-success">Activo</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Inactivo</span>
+                            }
+                        </td>
+
+                        <td class="pe-3">
+                            <div class="d-flex justify-content-end gap-2"
+                                 style="min-width: 245px;">
+                                <a asp-action="Edit"
+                                   asp-route-id="@item.Id"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Editar
+                                </a>
+
+                                <a asp-action="Details"
+                                   asp-route-id="@item.Id"
+                                   class="btn btn-sm btn-outline-secondary">
+                                    Detalles
+                                </a>
+
+                                <a asp-action="Delete"
+                                   asp-route-id="@item.Id"
+                                   class="btn btn-sm btn-outline-danger">
+                                    Eliminar
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+ 
+</div>
+<partial name="_PaginacionListadoAdmin" />

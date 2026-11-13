@@ -1,0 +1,64 @@
+﻿@model EuforiaEssencePW.Models.Categoria
+
+@{
+    ViewData["Title"] = "Detalle de categoría";
+
+    var fecha = DateTime.SpecifyKind(
+        Model.FechaCreacion, DateTimeKind.Utc).AddHours(-3);
+}
+
+<section class="ee-cuenta">
+    <header class="ee-cuenta-encabezado">
+        <div>
+            <span class="ee-cuenta-etiqueta">
+                Administración · Categorías
+            </span>
+            <h1>Detalle de categoría</h1>
+        </div>
+    </header>
+
+    <div class="card card-body mb-4">
+        <h2 class="h4 mb-4">@Model.Nombre</h2>
+
+        <dl class="row mb-0">
+            <dt class="col-sm-4">Nombre</dt>
+            <dd class="col-sm-8">@Model.Nombre</dd>
+
+            <dt class="col-sm-4">Descripción</dt>
+            <dd class="col-sm-8"
+                style="white-space: pre-line; overflow-wrap: anywhere;">@(string.IsNullOrWhiteSpace(Model.Descripcion) ? "Sin descripción." : Model.Descripcion)</dd>
+
+            <dt class="col-sm-4">Fecha de creación</dt>
+            <dd class="col-sm-8">
+                @fecha.ToString("dd/MM/yyyy HH:mm") — Argentina
+            </dd>
+
+            @if (Model.FechaModificacion.HasValue)
+            {
+                var modificacion = DateTime.SpecifyKind(
+                Model.FechaModificacion.Value,
+                DateTimeKind.Utc).AddHours(-3);
+
+                <dt class="col-sm-4">Última modificación</dt>
+                <dd class="col-sm-8">
+                    @modificacion.ToString("dd/MM/yyyy HH:mm") — Argentina
+                </dd>
+            }
+        </dl>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+        <a asp-controller="Categorias"
+           asp-action="Edit"
+           asp-route-id="@Model.Id"
+           class="btn btn-primary">
+            Editar categoría
+        </a>
+
+        <a asp-controller="Categorias"
+           asp-action="Index"
+           class="btn btn-outline-dark">
+            Volver a categorías
+        </a>
+    </div>
+</section>

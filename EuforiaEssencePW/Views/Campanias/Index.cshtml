@@ -1,0 +1,76 @@
+﻿@model IEnumerable<EuforiaEssencePW.Models.Campania>
+
+@{
+    ViewData["Title"] = "Campañas";
+    var hoy = DateTime.UtcNow.AddHours(-3).Date;
+}
+
+<h1>Campañas de inicio</h1>
+
+<p class="text-muted">
+    Administrá las selecciones de productos que aparecen en la portada.
+    Las fechas corresponden a Argentina.
+</p>
+
+@if (TempData["Exito"] is string exito)
+{
+    <div class="alert alert-success" role="alert">@exito</div>
+}
+
+<a asp-action="Edit" class="btn btn-primary mb-4">
+    Nueva campaña
+</a>
+
+@if (!Model.Any())
+{
+    <p>Todavía no hay campañas registradas.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Campaña</th>
+                    <th>Desde</th>
+                    <th>Hasta</th>
+                    <th>Prioridad</th>
+                    <th>Estado</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var campania in Model)
+                {
+                    var estado = !campania.Activa
+                    ? "Desactivada"
+                    : hoy < campania.Desde.Date
+                    ? "Programada"
+                    : hoy > campania.Hasta.Date
+                    ? "Finalizada"
+                    : "En fecha";
+
+                    <tr>
+                        <td>@campania.Titulo</td>
+                        <td>@campania.Desde.ToString("dd/MM/yyyy")</td>
+                        <td>@campania.Hasta.ToString("dd/MM/yyyy")</td>
+                        <td>@campania.Prioridad</td>
+                        <td>@estado</td>
+                        <td>
+                            <a asp-action="Edit"
+                               asp-route-id="@campania.Id"
+                               class="btn btn-outline-primary btn-sm">
+                                Editar
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<p class="text-muted mt-3">
+    La portada muestra la campaña vigente con mayor prioridad que tenga
+    perfumes activos. Si empatan, muestra la creada más recientemente.
+</p>

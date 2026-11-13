@@ -1,0 +1,207 @@
+﻿@{
+    var sesionIniciada = User.Identity?.IsAuthenticated == true;
+    var esAdministrador = User.IsInRole("Administrador");
+    var mostrarCarrito = esAdministrador || User.IsInRole("Cliente");
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - Euphoria Essence</title>
+
+    <script type="importmap"></script>
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/EuforiaEssencePW.styles.css"
+          asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark ee-navbar border-bottom mb-3"
+             aria-label="Navegación principal">
+            <div class="container-fluid">
+                <div class="d-flex align-items-center gap-2 me-auto me-lg-0">
+                    @if (sesionIniciada)
+                    {
+                        <div class="flex-shrink-0">
+                            <partial name="_LoginPartial" />
+                        </div>
+                    }
+
+                    <a class="navbar-brand"
+                       asp-area=""
+                       asp-controller="Home"
+                       asp-action="Index">
+                        Euphoria Essence
+                    </a>
+                </div>
+
+                <button class="navbar-toggler order-2 ms-2"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#navegacionPrincipal"
+                        aria-controls="navegacionPrincipal"
+                        aria-expanded="false"
+                        aria-label="Abrir o cerrar navegación">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div id="navegacionPrincipal"
+                     class="collapse navbar-collapse order-3 order-lg-0">
+                    <ul class="navbar-nav me-lg-auto">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark"
+                               asp-area=""
+                               asp-controller="Home"
+                               asp-action="Index">
+                                Inicio
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark"
+                               asp-area=""
+                               asp-controller="Catalogo"
+                               asp-action="Index">
+                                Catálogo
+                            </a>
+                        </li>
+
+                        @if (esAdministrador)
+                        {
+                            <li class="nav-item dropdown">
+                                <button class="nav-link dropdown-toggle text-dark"
+                                        type="button"
+                                        id="menuAdministracion"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                                    Administración
+                                </button>
+
+                                <ul class="dropdown-menu"
+                                    aria-labelledby="menuAdministracion">
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-area=""
+                                           asp-controller="Campanias"
+                                           asp-action="Index">
+                                            Campañas de inicio
+                                        </a>
+                                    </li>
+
+                                    <li><hr class="dropdown-divider" /></li>
+
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-area=""
+                                           asp-controller="Marcas"
+                                           asp-action="Index">
+                                            Marcas
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-area=""
+                                           asp-controller="Categorias"
+                                           asp-action="Index">
+                                            Categorías
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-area=""
+                                           asp-controller="Perfumes"
+                                           asp-action="Index">
+                                            Perfumes
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-area=""
+                                           asp-controller="Presentaciones"
+                                           asp-action="Index">
+                                            Presentaciones
+                                        </a>
+                                    </li>
+
+                                    <li><hr class="dropdown-divider" /></li>
+
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-area=""
+                                           asp-controller="GestionPedidos"
+                                           asp-action="Index">
+                                            Gestión de pedidos
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-area=""
+                                           asp-controller="Pagos"
+                                           asp-action="Revisiones">
+                                            Revisión de pagos
+                                        </a>
+                                    </li>
+
+                                    <li><hr class="dropdown-divider" /></li>
+
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-area=""
+                                           asp-controller="Auditoria"
+                                           asp-action="Index">
+                                            Auditoría
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                    </ul>
+
+                    @if (!sesionIniciada)
+                    {
+                        <partial name="_LoginPartial" />
+                    }
+                </div>
+
+                @if (mostrarCarrito)
+                {
+                    <ul class="navbar-nav order-1 ms-lg-3">
+                        <partial name="_CarritoNav" />
+                    </ul>
+                }
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <main id="contenidoPrincipal" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <partial name="_AsistentePerfumes" />
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/asistente.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

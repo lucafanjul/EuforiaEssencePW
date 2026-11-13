@@ -1,0 +1,56 @@
+﻿@model EuforiaEssencePW.Models.Presentacion
+
+@{
+    ViewData["Title"] = "Eliminar presentación";
+    var cultura = System.Globalization.CultureInfo.GetCultureInfo("es-AR");
+}
+
+<h1>Eliminar presentación</h1>
+
+<div class="card card-body my-3">
+    <h2 class="h5">@Model.Perfume?.Nombre</h2>
+
+    <p class="mb-1">
+        <strong>Contenido:</strong> @Model.Mililitros ml
+    </p>
+
+    <p class="mb-1">
+        <strong>Precio:</strong> @Model.Precio.ToString("C2", cultura)
+    </p>
+
+    <p class="mb-1">
+        <strong>Stock:</strong> @Model.Stock unidades
+    </p>
+
+    <p class="mb-0">
+        <strong>Estado:</strong>
+        @(Model.Activo ? "Activa" : "Inactiva")
+    </p>
+</div>
+
+<p class="text-muted">
+    No se puede eliminar una presentación vinculada a pedidos.
+    Para dejar de ofrecerla, podés desactivarla desde Editar.
+</p>
+
+<form asp-controller="Presentaciones"
+      asp-action="Delete"
+      asp-route-id="@Model.Id"
+      method="post"
+      data-confirmar
+      data-titulo="¿Eliminar esta presentación?"
+      data-mensaje="Esta operación no se puede deshacer."
+      data-boton="Eliminar presentación">
+
+    <input type="hidden" asp-for="Id" />
+
+    <div class="d-flex flex-wrap gap-2">
+        <button type="submit" class="btn btn-danger">
+            Eliminar presentación
+        </button>
+
+        <a asp-action="Index" class="btn btn-secondary">
+            Volver
+        </a>
+    </div>
+</form>

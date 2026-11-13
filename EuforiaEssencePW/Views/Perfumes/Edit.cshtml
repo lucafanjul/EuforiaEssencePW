@@ -1,0 +1,36 @@
+﻿@model EuforiaEssencePW.Models.Perfume
+
+@{
+    ViewData["Title"] = "Editar perfume";
+}
+
+<h1>Editar perfume</h1>
+<hr />
+
+<div class="row">
+    <div class="col-lg-8">
+        <form asp-action="Edit"
+              asp-route-id="@Model.Id"
+              method="post"
+              enctype="multipart/form-data">
+
+            <input type="hidden" asp-for="Id" />
+
+            <partial name="_CamposPerfume" model="Model" />
+
+            <button type="submit" class="btn btn-primary">
+                Guardar cambios
+            </button>
+
+            <a asp-action="Index" class="btn btn-secondary">
+                Volver
+            </a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

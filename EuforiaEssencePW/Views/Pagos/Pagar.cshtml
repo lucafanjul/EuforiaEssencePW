@@ -1,0 +1,223 @@
+﻿@model EuforiaEssencePW.Models.ViewModels.PagoComprobanteViewModel
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuracion
+@{
+    ViewData["Title"] = "Comprobante de pago";
+    var cultura = System.Globalization.CultureInfo.GetCultureInfo("es-AR");
+}
+
+<section class="ee-cuenta">
+    <header class="ee-cuenta-encabezado">
+        <div>
+            <span class="ee-cuenta-etiqueta">Mi pedido</span>
+            <h1>Comprobante de pago</h1>
+            <p>Pedido #@Model.Pedido.Id</p>
+        </div>
+
+        <a asp-controller="Pedidos"
+           asp-action="Details"
+           asp-route-id="@Model.Pedido.Id"
+           class="btn btn-outline-dark">
+            Volver al pedido
+        </a>
+    </header>
+
+    @if (TempData["Exito"] is string exito)
+    {
+        <div class="alert alert-success" role="alert">@exito</div>
+    }
+
+    @if (TempData["Error"] is string error)
+    {
+        <div class="alert alert-danger" role="alert">@error</div>
+    }
+
+    <div class="ee-checkout-panel mb-4">
+        <h2>Pedido #@Model.Pedido.Id</h2>
+
+        <p>
+            Total:
+            <strong>
+                @Model.Pedido.Total.ToString("C2", cultura)
+            </strong>
+        </p>
+
+        <p>Estado del pago: <strong>@Model.Pedido.EstadoPago</strong></p>
+
+        @if (Model.Pedido.PuedePagarse())
+        {
+            <div class="text-center mb-4">
+                <h3 class="h5">Pago de prueba con QR</h3>
+                <p>Escaneá el código para abrir este pedido en tu celular.</p>
+
+                <img src="@Url.Action("QrPago", "Pagos", new { id = Model.Pedido.Id })"
+                     alt="Código QR para abrir el pago de prueba"
+                     width="220"
+                     height="220"
+                     class="img-fluid mb-2" />
+
+                <p class="small mb-0">No se realizará ningún cobro.</p>
+            </div>
+
+
+            <div class="alert alert-info">
+                Tienda demo. Podés simular el pago. No se realizará ningún cobro.
+            </div>
+
+            <form asp-controller="Pagos"
+                  asp-action="Simular"
+                  method="post"
+                  class="d-flex flex-wrap gap-2 mb-4">
+                <input type="hidden" name="id" value="@Model.Pedido.Id" />
+                <input type="hidden" name="token" value="@Model.Token" />
+
+                <button type="submit" name="resultado" value="Aprobado"
+                        class="btn btn-primary">
+                    Simular pago aprobado
+                </button>
+
+                <button type="submit" name="resultado" value="Rechazado"
+                        class="btn btn-outline-danger">
+                    Simular pago rechazado
+                </button>
+            </form>
+
+            @if (bool.TryParse(Configuracion["Tienda:PermitirCargaDeComprobantes"],
+                    out var permitirCarga) && permitirCarga)
+            {
+                var esApelacion = Model.Pedido.EstadoPago == "Rechazado" &&
+                Model.Pedido.StockLiberado;
+
+                <form asp-controller="Pagos"
+                      asp-action="Subir"
+                      method="post"
+                      enctype="multipart/form-data">
+                    <input type="hidden" name="id" value="@Model.Pedido.Id" />
+                    <input type="hidden" name="token" value="@Model.Token" />
+
+                    @if (esApelacion)
+                    {
+                        <div class="mb-3">
+                            <label for="motivoApelacion" class="form-label">
+                                Explicá por qué solicitás otra revisión
+                            </label>
+
+                            <textarea id="motivoApelacion"
+                          name="motivoApelacion"
+                          class="form-control"
+                          maxlength="500"
+                          rows="3"
+                          required></textarea>
+                        </div>
+                    }
+
+                    <div class="mb-3">
+                        <label for="archivo" class="form-label">
+                            @(esApelacion ? "Comprobante corregido" : "Comprobante ficticio")
+                            (PDF, JPG o PNG, hasta 5 MB)
+                        </label>
+
+                        <input id="archivo"
+                               name="archivo"
+                               type="file"
+                               accept=".pdf,.jpg,.jpeg,.png"
+                               required
+                               class="form-control" />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        @(esApelacion ? "Apelar rechazo" : "Enviar para revisión")
+                    </button>
+                </form>
+            }
+        }
+        else if (Model.Pedido.EstadoPago == "En revisión" &&
+        Model.Pedido.Estado == "Pendiente")
+        {
+            <div class="alert alert-warning mb-0">
+                Tu comprobante está pendiente de revisión.
+                No hace falta volver a enviarlo.
+            </div>
+        }
+        else if (Model.Pedido.EstadoPago == "Aprobado" &&
+        Model.Pedido.PagoValidadoPorAdmin)
+        {
+            <div class="alert alert-success mb-0">
+                El administrador validó tu pago.
+            </div>
+        }
+        else
+        {
+            <p class="text-muted mb-0">
+                Este pedido no admite nuevos comprobantes.
+            </p>
+        }
+    </div>
+
+    <h2 class="h4 mb-3">Historial de comprobantes</h2>
+
+    @if (!Model.Historial.Any())
+    {
+        <p class="text-muted">
+            Todavía no enviaste comprobantes para este pedido.
+        </p>
+    }
+    else
+    {
+        @foreach (var comprobante in Model.Historial)
+        {
+            var fecha = DateTime.SpecifyKind(
+            comprobante.FechaEnvio,
+            DateTimeKind.Utc).AddHours(-3);
+
+            <div class="card card-body mb-3">
+                <div class="d-flex flex-wrap justify-content-between gap-2">
+                    <strong>
+                        @fecha.ToString("dd/MM/yyyy HH:mm") — Argentina
+                    </strong>
+
+                    <span>@comprobante.Estado</span>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(comprobante.MotivoRechazo))
+                {
+                    <p class="mt-2 mb-2">
+                        <strong>Motivo del rechazo:</strong>
+                        @comprobante.MotivoRechazo
+                    </p>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(comprobante.MotivoApelacion))
+                {
+                    <p class="mt-2 mb-2">
+                        <strong>Explicación de la apelación:</strong>
+                        @comprobante.MotivoApelacion
+                    </p>
+                }
+                @if (!string.IsNullOrWhiteSpace(comprobante.MotivoApelacion))
+                {
+                    <p class="mt-2 mb-2">
+                        <strong>Explicación de la apelación:</strong>
+                        @comprobante.MotivoApelacion
+                    </p>
+                }
+
+                @if (comprobante.EstadoPedido == "Cancelado" &&
+                        comprobante.Estado == "Pendiente")
+                {
+                    <p class="text-muted mt-2">
+                        El pedido fue cancelado. Este archivo ya no admite revisión.
+                    </p>
+                }
+
+                <div class="mt-3">
+                    <a asp-controller="Pagos"
+                       asp-action="Descargar"
+                       asp-route-id="@comprobante.Id"
+                       class="btn btn-outline-secondary btn-sm">
+                        Descargar archivo enviado
+                    </a>
+                </div>
+            </div>
+        }
+    }
+</section>

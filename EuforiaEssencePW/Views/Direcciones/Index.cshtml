@@ -1,0 +1,130 @@
+﻿@model IEnumerable<EuforiaEssencePW.Models.Direccion>
+
+@{
+    ViewData["Title"] = "Mis direcciones";
+    var direcciones = Model.ToList();
+}
+
+<section class="ee-cuenta">
+    <header class="ee-cuenta-encabezado">
+        <div>
+            <span class="ee-cuenta-etiqueta">Mi cuenta</span>
+            <h1>Mis direcciones</h1>
+            <p>Administrá los lugares donde querés recibir tus pedidos.</p>
+        </div>
+
+        <a asp-controller="Direcciones"
+           asp-action="Create"
+           class="btn btn-primary">
+            Nueva dirección
+        </a>
+    </header>
+
+    @if (TempData["Exito"] is string exito)
+    {
+        <div class="alert alert-success"
+             role="alert"
+             data-notificacion
+             data-tipo="success">
+            @exito
+        </div>
+    }
+
+    @if (TempData["Error"] is string error)
+    {
+        <div class="alert alert-danger"
+             role="alert"
+             data-notificacion
+             data-tipo="error">
+            @error
+        </div>
+    }
+
+    @if (!direcciones.Any())
+    {
+        <div class="ee-vacio">
+            <h2>¿Dónde recibís tu próxima fragancia?</h2>
+            <p>
+                Agregá una dirección para poder confirmar tus compras.
+            </p>
+
+            <a asp-controller="Direcciones"
+               asp-action="Create"
+               class="btn btn-primary">
+                Agregar mi primera dirección
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var direccion in direcciones)
+            {
+                <div class="col-md-6">
+                    <article class="ee-direccion-tarjeta">
+                        <span class="ee-cuenta-etiqueta">
+                            Dirección de entrega
+                        </span>
+
+                        <h2>@direccion.Destinatario</h2>
+
+                        <address>
+                            <strong>
+                                @direccion.Calle @direccion.Altura
+                            </strong>
+
+                            @if (!string.IsNullOrWhiteSpace(
+                                                direccion.PisoDepartamento))
+                            {
+                                <span>
+                                    Piso / departamento:
+                                    @direccion.PisoDepartamento
+                                </span>
+                            }
+
+                            <span>
+                                @direccion.Localidad, @direccion.Provincia
+                            </span>
+
+                            <span>
+                                Código postal: @direccion.CodigoPostal
+                            </span>
+                        </address>
+
+                        <div class="ee-direccion-acciones">
+                            <a asp-controller="Direcciones"
+                               asp-action="Edit"
+                               asp-route-id="@direccion.Id"
+                               class="btn btn-outline-primary">
+                                Editar
+                            </a>
+
+                            <form asp-controller="Direcciones"
+                                  asp-action="Delete"
+                                  method="post"
+                                  data-confirmar
+                                  data-titulo="¿Eliminar esta dirección?"
+                                  data-mensaje="La dirección se eliminará si no está vinculada a pedidos."
+                                  data-boton="Eliminar dirección">
+
+                                <input type="hidden"
+                                       name="id"
+                                       value="@direccion.Id" />
+
+                                <button type="submit"
+                                        class="btn btn-outline-danger">
+                                    Eliminar
+                                </button>
+                            </form>
+                        </div>
+                    </article>
+                </div>
+            }
+        </div>
+
+        <p class="ee-cuenta-aclaracion">
+            Las direcciones vinculadas a pedidos no pueden eliminarse.
+            Los pedidos conservan la dirección registrada al confirmar la compra.
+        </p>
+    }
+</section>

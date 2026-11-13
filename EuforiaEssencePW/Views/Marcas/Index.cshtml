@@ -1,0 +1,261 @@
+﻿@model IEnumerable<EuforiaEssencePW.Models.Marca>
+
+@{
+    ViewData["Title"] = "Marcas";
+}
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <h1 class="mb-0">Marcas</h1>
+
+    <a asp-action="Create"
+       data-modal-marca
+       class="btn btn-primary">
+        Nueva marca
+    </a>
+</div>
+
+@if (TempData["Exito"] is string exito)
+{
+    <div class="alert alert-success"
+         role="alert"
+         data-notificacion
+         data-tipo="success">
+        @exito
+    </div>
+}
+
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger"
+         role="alert"
+         data-notificacion
+         data-tipo="error">
+        @error
+    </div>
+}
+
+<partial name="_FiltrosListadoAdmin" />
+
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th scope="col">Marca</th>
+                <th scope="col">Fecha de creación — Argentina</th>
+                <th scope="col">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                var fecha = DateTime.SpecifyKind(
+                item.FechaCreacion, DateTimeKind.Utc).AddHours(-3);
+
+                <tr>
+                    <td>@item.Nombre</td>
+                    <td>@fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a asp-action="Edit"
+                               asp-route-id="@item.Id"
+                               data-modal-marca
+                               class="btn btn-sm btn-outline-primary">
+                                Editar
+                            </a>
+
+                            <a asp-action="Details"
+                               asp-route-id="@item.Id"
+                               class="btn btn-sm btn-outline-secondary">
+                                Detalles
+                            </a>
+
+                            <a asp-action="Delete"
+                               asp-route-id="@item.Id"
+                               class="btn btn-sm btn-outline-danger">
+                                Eliminar
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<partial name="_PaginacionListadoAdmin" />
+
+<div class="modal fade"
+     id="modalMarca"
+     tabindex="-1"
+     aria-labelledby="tituloModalMarca"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" id="contenidoModalMarca"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        (() => {
+            const elementoModal = document.getElementById("modalMarca");
+            const contenido = document.getElementById("contenidoModalMarca");
+
+            const modal = new bootstrap.Modal(elementoModal, {
+                backdrop: "static",
+                keyboard: false
+            });
+
+            let cargando = false;
+            let guardando = false;
+
+            function prepararFormulario() {
+                const formulario = contenido.querySelector("#formMarca");
+
+                if (!formulario) {
+                    throw new Error(
+                        "No se pudo cargar el formulario. Recargá la página.");
+                }
+
+                $.validator.unobtrusive.parse(formulario);
+            }
+
+            async function mostrarError(mensaje) {
+                if (typeof Swal !== "undefined") {
+                    await Swal.fire({
+                        icon: "error",
+                        title: "No se pudo completar",
+                        text: mensaje,
+                        confirmButtonText: "Aceptar"
+                    });
+                } else {
+                    window.alert(mensaje);
+                }
+            }
+
+            function comprobarRespuesta(respuesta) {
+                if (respuesta.redirected ||
+                    respuesta.status === 401 ||
+                    respuesta.status === 403) {
+                    throw new Error(
+                        "La sesión venció o no tenés permisos. Recargá la página.");
+                }
+
+                if (!respuesta.ok) {
+                    throw new Error(
+                        "No se pudo procesar la solicitud. Recargá la página e intentá nuevamente.");
+                }
+            }
+
+            document.addEventListener("click", async (evento) => {
+                const enlace = evento.target.closest("[data-modal-marca]");
+
+                if (!enlace) return;
+
+                if (evento.ctrlKey || evento.metaKey ||
+                    evento.shiftKey || evento.altKey ||
+                    evento.button !== 0) return;
+
+                evento.preventDefault();
+
+                if (cargando || guardando) return;
+
+                cargando = true;
+
+                try {
+                    const respuesta = await fetch(enlace.href, {
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest"
+                        },
+                        cache: "no-store"
+                    });
+
+                    comprobarRespuesta(respuesta);
+
+                    contenido.innerHTML = await respuesta.text();
+                    prepararFormulario();
+                    modal.show();
+                } catch (error) {
+                    await mostrarError(
+                        error.message || "No se pudo cargar el formulario.");
+                } finally {
+                    cargando = false;
+                }
+            });
+
+            elementoModal.addEventListener("shown.bs.modal", () => {
+                contenido.querySelector('[name="Nombre"]')?.focus();
+            });
+
+            elementoModal.addEventListener("hide.bs.modal", (evento) => {
+                if (guardando) evento.preventDefault();
+            });
+
+            contenido.addEventListener("submit", async (evento) => {
+                const formulario = evento.target;
+
+                if (!formulario.matches("#formMarca")) return;
+
+                evento.preventDefault();
+
+                if (guardando || !$(formulario).valid()) return;
+
+                guardando = true;
+
+                const botones = formulario.querySelectorAll("button");
+                botones.forEach(boton => boton.disabled = true);
+
+                const errorAjax = formulario.querySelector("[data-error-ajax]");
+                errorAjax?.classList.add("d-none");
+
+                try {
+                    const respuesta = await fetch(formulario.action, {
+                        method: "POST",
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest"
+                        },
+                        body: new FormData(formulario)
+                    });
+
+                    comprobarRespuesta(respuesta);
+
+                    const tipo = respuesta.headers.get("content-type") || "";
+
+                    if (tipo.includes("application/json")) {
+                        const datos = await respuesta.json();
+
+                        if (!datos.success) {
+                            throw new Error("No se pudo guardar la marca.");
+                        }
+
+                        window.location.reload();
+                        return;
+                    }
+
+                    if (!tipo.includes("text/html")) {
+                        throw new Error(
+                            "El servidor devolvió una respuesta inesperada.");
+                    }
+
+                    contenido.innerHTML = await respuesta.text();
+                    prepararFormulario();
+                } catch (error) {
+                    const aviso = contenido.querySelector("[data-error-ajax]");
+                    const mensaje = error.message ||
+                        "No se pudo guardar. Intentá nuevamente.";
+
+                    if (aviso) {
+                        aviso.textContent = mensaje;
+                        aviso.classList.remove("d-none");
+                    } else {
+                        await mostrarError(mensaje);
+                    }
+                } finally {
+                    guardando = false;
+                    botones.forEach(boton => boton.disabled = false);
+                }
+            });
+        })();
+    </script>
+}

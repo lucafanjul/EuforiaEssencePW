@@ -1,0 +1,49 @@
+﻿@model EuforiaEssencePW.Models.ViewModels.DireccionViewModel
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<div class="mb-3">
+    <label asp-for="Destinatario" class="form-label"></label>
+    <input asp-for="Destinatario" class="form-control" />
+    <span asp-validation-for="Destinatario" class="text-danger"></span>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mb-3">
+        <label asp-for="Calle" class="form-label"></label>
+        <input asp-for="Calle" class="form-control" />
+        <span asp-validation-for="Calle" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <label asp-for="Altura" class="form-label"></label>
+        <input asp-for="Altura" class="form-control" />
+        <span asp-validation-for="Altura" class="text-danger"></span>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label asp-for="PisoDepartamento" class="form-label"></label>
+    <input asp-for="PisoDepartamento" class="form-control" />
+    <span asp-validation-for="PisoDepartamento" class="text-danger"></span>
+</div>
+
+<div class="row">
+    <div class="col-md-5 mb-3">
+        <label asp-for="Localidad" class="form-label"></label>
+        <input asp-for="Localidad" class="form-control" />
+        <span asp-validation-for="Localidad" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <label asp-for="Provincia" class="form-label"></label>
+        <input asp-for="Provincia" class="form-control" />
+        <span asp-validation-for="Provincia" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <label asp-for="CodigoPostal" class="form-label"></label>
+        <input asp-for="CodigoPostal" class="form-control" />
+        <span asp-validation-for="CodigoPostal" class="text-danger"></span>
+    </div>
+</div>

@@ -1,0 +1,103 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using EuforiaEssencePW.Models
+@inject SignInManager<Usuario> SignInManager
+
+<ul class="navbar-nav ee-nav-acceso">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li class="nav-item dropdown">
+            <button class="nav-link ee-nav-icono dropdown-toggle"
+                    type="button"
+                    id="menuPerfil"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    aria-label="Abrir menú de mi cuenta"
+                    title="Mi cuenta">
+
+                <svg width="25" height="25"
+                     viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.7"
+                     stroke-linecap="round"
+                     stroke-linejoin="round"
+                     aria-hidden="true">
+                    <circle cx="12" cy="8" r="4" />
+                    <path d="M4 21v-2a8 8 0 0 1 16 0v2" />
+                </svg>
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-end"
+                aria-labelledby="menuPerfil">
+                <li>
+                    <a class="dropdown-item"
+                       asp-area=""
+                       asp-controller="Perfil"
+                       asp-action="Index">
+                        Mi perfil
+                    </a>
+                </li>
+
+                <li>
+                    <a class="dropdown-item"
+                       asp-area=""
+                       asp-controller="Pedidos"
+                       asp-action="Index">
+                        Mis pedidos
+                    </a>
+                </li>
+
+                <li>
+                    <a class="dropdown-item"
+                       asp-area=""
+                       asp-controller="Direcciones"
+                       asp-action="Index">
+                        Mis direcciones
+                    </a>
+                </li>
+
+                <li>
+                    <a class="dropdown-item"
+                       asp-area=""
+                       asp-controller="Perfil"
+                       asp-action="CambiarClave">
+                        Cambiar contraseña
+                    </a>
+                </li>
+
+                <li><hr class="dropdown-divider" /></li>
+
+                <li>
+                    <form asp-area="Identity"
+                          asp-page="/Account/Logout"
+                          asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })"
+                          method="post">
+
+                        <button type="submit"
+                                class="dropdown-item">
+                            Cerrar sesión
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark"
+               asp-area="Identity"
+               asp-page="/Account/Login">
+                Iniciar sesión
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="btn btn-primary btn-sm"
+               asp-area="Identity"
+               asp-page="/Account/Register">
+                Crear cuenta
+            </a>
+        </li>
+    }
+</ul>

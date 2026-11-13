@@ -1,0 +1,162 @@
+﻿@model EuforiaEssencePW.Models.Pedido
+
+@{
+    ViewData["Title"] = "Detalle del pedido";
+    var cultura = System.Globalization.CultureInfo.GetCultureInfo("es-AR");
+
+    var fecha = DateTime.SpecifyKind(
+        Model.FechaPedido, DateTimeKind.Utc).AddHours(-3);
+
+    var claseEstado = Model.Estado switch
+    {
+        "Pendiente" => "ee-estado-pendiente",
+        "En preparación" => "ee-estado-preparacion",
+        "Enviado" => "ee-estado-enviado",
+        "Entregado" => "ee-estado-entregado",
+        "Cancelado" => "ee-estado-cancelado",
+        _ => ""
+    };
+}
+
+<section class="ee-cuenta">
+    <partial name="_EstadoPago" model="Model" />
+    <div class="mb-3">
+        <a asp-controller="Pagos"
+           asp-action="Revisiones"
+           asp-route-pedidoId="@Model.Id"
+           asp-route-estado="Todos"
+           class="btn btn-outline-primary">
+            Ver comprobantes del pedido #@Model.Id
+        </a>
+    </div>
+    <header class="ee-cuenta-encabezado">
+        <div>
+            <span class="ee-cuenta-etiqueta">Mi cuenta · Mis pedidos</span>
+            <h1>Pedido #@Model.Id</h1>
+            <p>@fecha.ToString("dd/MM/yyyy HH:mm") · Argentina</p>
+        </div>
+
+        <span class="ee-estado @claseEstado">@Model.Estado</span>
+    </header>
+
+    @if (TempData["Exito"] is string exito)
+    {
+        <div class="alert alert-success"
+             role="alert"
+             data-notificacion
+             data-tipo="success">
+            @exito
+        </div>
+    }
+
+    @if (TempData["Error"] is string error)
+    {
+        <div class="alert alert-danger"
+             role="alert"
+             data-notificacion
+             data-tipo="error">
+            @error
+        </div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="ee-pedido-tarjeta">
+                <h2 class="ee-panel-titulo">Productos del pedido</h2>
+
+                @foreach (var detalle in Model.Detalles)
+                {
+                    <div class="ee-pedido-producto">
+                        <span>
+                            <strong>@detalle.NombrePerfume</strong>
+                            <small>
+                                @detalle.Mililitros ml ·
+                                @detalle.Cantidad
+                                @(detalle.Cantidad == 1 ? "unidad" : "unidades")
+                            </small>
+                            <small>
+                                @detalle.PrecioUnitario.ToString("C2", cultura)
+                                por unidad
+                            </small>
+                        </span>
+
+                        <span>
+                            @detalle.Subtotal.ToString("C2", cultura)
+                        </span>
+                    </div>
+                }
+
+                <div class="ee-pedido-pie">
+                    <span class="ee-total-etiqueta">
+                        Total de productos
+                    </span>
+                    <strong>@Model.Total.ToString("C2", cultura)</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <aside class="ee-resumen">
+                <h2>Entrega</h2>
+
+                <p class="ee-texto-entrega">
+                    @Model.DireccionEntrega
+                </p>
+
+                @if (!string.IsNullOrWhiteSpace(Model.Observaciones))
+                {
+                    <div class="ee-pedido-observaciones">
+                        <h3>Indicaciones</h3>
+                        <p>@Model.Observaciones</p>
+                    </div>
+                }
+
+                @if (Model.Estado == "Cancelado")
+                {
+                    <p class="ee-resumen-aclaracion">
+                        Este pedido fue cancelado.
+                    </p>
+                }
+                else if (Model.PuedeCancelarse())
+                {
+                    <p class="ee-resumen-aclaracion">
+                        Podés cancelar el pedido mientras permanezca pendiente.
+                    </p>
+                }
+            </aside>
+        </div>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 mt-4">
+        <a asp-controller="Pedidos"
+           asp-action="DescargarComprobante"
+           asp-route-id="@Model.Id"
+           class="btn btn-primary">
+            Descargar comprobante PDF
+        </a>
+
+        <a asp-controller="Pedidos"
+           asp-action="Index"
+           class="btn btn-outline-dark">
+            Volver a mis pedidos
+        </a>
+
+        @if (Model.PuedeCancelarse())
+        {
+            <form asp-controller="Pedidos"
+                  asp-action="Cancelar"
+                  method="post"
+                  data-confirmar
+                  data-titulo="¿Cancelar este pedido?"
+                  data-mensaje="Las unidades se devolverán al stock. Esta operación no se puede deshacer."
+                  data-boton="Cancelar pedido">
+
+                <input type="hidden" name="id" value="@Model.Id" />
+
+                <button type="submit" class="btn btn-outline-danger">
+                    Cancelar pedido
+                </button>
+            </form>
+        }
+    </div>
+</section>

@@ -1,0 +1,89 @@
+﻿@model IEnumerable<EuforiaEssencePW.Models.Pedido>
+
+@{
+    ViewData["Title"] = "Gestión de pedidos";
+    var cultura = System.Globalization.CultureInfo.GetCultureInfo("es-AR");
+    var estadoActual = ViewBag.Estado as string;
+    var estados = new[]
+    {
+        "Pendiente",
+        "En preparación",
+        "Enviado",
+        "Entregado",
+        "Cancelado"
+    };
+}
+
+<h1>Gestión de pedidos</h1>
+
+<form asp-action="Index" method="get"
+      class="d-flex gap-2 my-3">
+
+    <select name="estado" class="form-select"
+            aria-label="Filtrar por estado"
+            style="max-width: 250px;">
+        <option value="">Todos los estados</option>
+
+        @foreach (var estado in estados)
+        {
+            <option value="@estado"
+                    selected="@(estado == estadoActual)">
+                @estado
+            </option>
+        }
+    </select>
+
+    <button type="submit" class="btn btn-primary">
+        Filtrar
+    </button>
+
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        Limpiar
+    </a>
+</form>
+
+<div class="table-responsive">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Pedido</th>
+                <th>Cliente</th>
+                <th>Fecha — Argentina</th>
+                <th>Estado</th>
+                <th>Total</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        No hay pedidos para mostrar.
+                    </td>
+                </tr>
+            }
+
+            @foreach (var pedido in Model)
+            {
+                var fecha = DateTime.SpecifyKind(
+                pedido.FechaPedido, DateTimeKind.Utc).AddHours(-3);
+
+                <tr>
+                    <td>#@pedido.Id</td>
+                    <td>@pedido.Usuario?.Email</td>
+                    <td>@fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@pedido.Estado</td>
+                    <td>@pedido.Total.ToString("C2", cultura)</td>
+                    <td>
+                        <a asp-action="Details"
+                           asp-route-id="@pedido.Id"
+                           class="btn btn-outline-primary btn-sm">
+                            Gestionar
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

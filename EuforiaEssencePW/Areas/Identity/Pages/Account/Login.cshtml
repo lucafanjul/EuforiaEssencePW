@@ -1,0 +1,80 @@
+﻿@page
+@model EuforiaEssencePW.Areas.Identity.Pages.Account.LoginModel
+
+@{
+    ViewData["Title"] = "Iniciar sesión";
+}
+
+<section class="ee-acceso">
+    <div class="ee-acceso-marca">
+        <span class="ee-etiqueta">Euphoria Essence</span>
+
+        <h2>Tu esencia.<br />Tu próximo descubrimiento.</h2>
+
+        <p>
+            Volvé a tu selección de fragancias,
+            consultá tus pedidos y encontrá nuevos favoritos.
+        </p>
+
+        <a asp-area=""
+           asp-controller="Catalogo"
+           asp-action="Index"
+           class="ee-acceso-volver">
+            Explorar el catálogo
+        </a>
+    </div>
+
+    <div class="ee-acceso-formulario">
+        <span class="ee-cuenta-etiqueta">Bienvenido de nuevo</span>
+        <h1>Iniciar sesión</h1>
+        <p class="ee-acceso-intro">
+            Accedé a tu cuenta para continuar.
+        </p>
+
+        <form method="post" asp-route-returnUrl="@Model.ReturnUrl">
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Email" class="form-label"></label>
+                <input asp-for="Input.Email"
+                       autocomplete="username"
+                       class="form-control" />
+                <span asp-validation-for="Input.Email"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Password" class="form-label"></label>
+                <input asp-for="Input.Password"
+                       autocomplete="current-password"
+                       class="form-control" />
+                <span asp-validation-for="Input.Password"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="form-check mb-4">
+                <input asp-for="Input.RememberMe"
+                       class="form-check-input" />
+                <label asp-for="Input.RememberMe"
+                       class="form-check-label"></label>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">
+                Ingresar
+            </button>
+        </form>
+
+        <div class="ee-acceso-alternativa">
+            <span>¿Todavía no tenés cuenta?</span>
+            <a asp-page="./Register"
+               asp-route-returnUrl="@Model.ReturnUrl">
+                Crear cuenta
+            </a>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,128 @@
+﻿@model EuforiaEssencePW.Models.ViewModels.PerfilViewModel
+
+@{
+    ViewData["Title"] = "Mi perfil";
+}
+
+<section class="ee-cuenta">
+    <header class="ee-cuenta-encabezado">
+        <div>
+            <span class="ee-cuenta-etiqueta">Mi cuenta</span>
+            <h1>Mi perfil</h1>
+            <p>Consultá y actualizá tus datos.</p>
+        </div>
+    </header>
+
+    @if (TempData["Exito"] is string exito)
+    {
+        <div class="alert alert-success"
+             role="alert"
+             data-notificacion
+             data-tipo="success">
+            @exito
+        </div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="ee-checkout-panel">
+                <h2 class="mb-4">Datos personales</h2>
+
+                <form asp-controller="Perfil"
+                      asp-action="Index"
+                      method="post">
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="text-danger mb-3"></div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Nombre"
+                                   class="form-label"></label>
+
+                            <input asp-for="Nombre"
+                                   autocomplete="given-name"
+                                   class="form-control" />
+
+                            <span asp-validation-for="Nombre"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Apellido"
+                                   class="form-label"></label>
+
+                            <input asp-for="Apellido"
+                                   autocomplete="family-name"
+                                   class="form-control" />
+
+                            <span asp-validation-for="Apellido"
+                                  class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Telefono"
+                               class="form-label"></label>
+
+                        <input asp-for="Telefono"
+                               type="tel"
+                               autocomplete="tel"
+                               class="form-control" />
+
+                        <span asp-validation-for="Telefono"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Correo"
+                               class="form-label"></label>
+
+                        <input asp-for="Correo"
+                               type="email"
+                               readonly
+                               class="form-control" />
+
+                        <div class="form-text">
+                            Correo utilizado para iniciar sesión.
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        Guardar cambios
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <aside class="ee-resumen">
+                <h2>Mi cuenta</h2>
+
+                <div class="d-grid gap-2 mt-3">
+                    <a asp-controller="Pedidos"
+                       asp-action="Index"
+                       class="btn btn-outline-dark">
+                        Mis pedidos
+                    </a>
+
+                    <a asp-controller="Direcciones"
+                       asp-action="Index"
+                       class="btn btn-outline-dark">
+                        Mis direcciones
+                    </a>
+
+                    <a asp-controller="Perfil"
+                       asp-action="CambiarClave"
+                       class="btn btn-outline-dark">
+                        Cambiar contraseña
+                    </a>
+                </div>
+            </aside>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
